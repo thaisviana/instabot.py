@@ -126,7 +126,7 @@ class InstaBot:
     def __init__(self,
                  login,
                  password,
-                 like_per_day=1000,
+                 like_per_day=5000,
                  media_max_like=50,
                  media_min_like=0,
                  follow_per_day=0,
@@ -284,7 +284,8 @@ class InstaBot:
         })
 
         r = self.s.get(self.url)
-        self.s.headers.update({'X-CSRFToken': r.cookies['csrftoken']})
+        csrf_token = re.search('(?<=\"csrf_token\":\")\w+', r.text).group(0)
+        self.s.headers.update({'X-CSRFToken': csrf_token})
         time.sleep(5 * random.random())
         login = self.s.post(
             self.url_login, data=self.login_post, allow_redirects=True)
@@ -477,14 +478,7 @@ class InstaBot:
                     if media_size > 0 or media_size < 0:
                         media_size -= 1
                         l_c = self.media_by_tag[i]['node']['edge_liked_by']['count']
-                        if ((l_c <= self.media_max_like and
-                             l_c >= self.media_min_like) or
-                            (self.media_max_like == 0 and
-                             l_c >= self.media_min_like) or
-                            (self.media_min_like == 0 and
-                             l_c <= self.media_max_like) or
-                            (self.media_min_like == 0 and
-                             self.media_max_like == 0)):
+                        if True:
                             for blacklisted_user_name, blacklisted_user_id in self.user_blacklist.items(
                             ):
                                 if self.media_by_tag[i]['node']['owner'][
@@ -538,7 +532,8 @@ class InstaBot:
                             log_string = "Trying to like media: %s" % \
                                          (self.media_by_tag[i]['node']['id'])
                             self.write_log(log_string)
-                            like = self.like(self.media_by_tag[i]['node']['id'])
+                            like = self.add_to_api_small_big(i)
+                            #like = self.like(self.media_by_tag[i]['node']['id'])
                             # comment = self.comment(self.media_by_tag[i]['id'], 'Cool!')
                             # follow = self.follow(self.media_by_tag[i]["owner"]["id"])
                             if like != 0:
@@ -546,8 +541,9 @@ class InstaBot:
                                     # Like, all ok!
                                     self.error_400 = 0
                                     self.like_counter += 1
+                                    short = self.get_instagram_url_from_media_id(self.media_by_tag[i]['node']['id'])
                                     log_string = "Liked: %s. Like #%i." % \
-                                                 (self.media_by_tag[i]['node']['id'],
+                                                 (short,
                                                   self.like_counter)
                                     insert_media(self,
                                                  media_id=self.media_by_tag[i]['node']['id'],
@@ -602,6 +598,28 @@ class InstaBot:
                 logging.exception("Except on like!")
                 like = 0
             return like
+
+    def add_to_api_small_big(self, i):
+        try:
+            text = self.media_by_tag[i]['node']['edge_media_to_caption']['edges'][0]['node']['text'] \
+                if self.media_by_tag[i]['node']['edge_media_to_caption']['edges'] else ""
+            small_big_info = {
+                "photo_id": self.media_by_tag[i]['node']['id'],
+                "shortcode": self.media_by_tag[i]['node']['shortcode'],
+                "image_url": self.media_by_tag[i]['node']['display_url'],
+                "thumbnail": self.media_by_tag[i]['node']['thumbnail_src'],
+                "text": text,
+                "taken_at_timestamp": self.media_by_tag[i]['node']['taken_at_timestamp'],
+                "count_liked_by": self.media_by_tag[i]['node']['edge_liked_by']['count'],
+            }
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            small_big_info = json.dumps(small_big_info)
+            r = requests.post('https://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
+        except:
+            logging.exception("Except on small/big!")
+            r = 0
+        return r
+
 
     def unlike(self, media_id):
         """ Send http request to unlike media by ID """

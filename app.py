@@ -1,26 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import time
+import dotenv
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 from src import InstaBot
-from src.check_status import check_status
-from src.feed_scanner import feed_scanner
-from src.follow_protocol import follow_protocol
-from src.unfollow_protocol import unfollow_protocol
 
 bot = InstaBot(
-    login="username",
-    password="password",
-    like_per_day=1000,
+    login=os.environ.get('THAIS_LOGIN', ''),
+    password=os.environ.get('THIAS_PASSWORD', ''),
+    like_per_day=1400,
     comments_per_day=0,
-    tag_list=['follow4follow', 'f4f', 'cute', 'l:212999109'],
-    tag_blacklist=['rain', 'thunderstorm'],
+    tag_list=['iraja','irajá','irajagastro','projetovidanova','irajarj','irajattokas','gabrielzinhodoiraja','irajacity','irajágastrô','irajá555','viladapenha','viladapenharj','viladapenhanews','viladapenhacity','viladapenhacomercial','viladapenhabasquete','viladapenhamaster','viladapenhario','viladapenha_rj','viladapenhadadepressao','vilakosmos','vilakosmosrj','fjuvilakosmos','universalvilakosmos','sdsvilakosmos','pilatesvilakosmos — rua Aiera','madureira,  #naçãomadureira','madureirashopping','joemadureira','nacaomadureira','mercadaodemadureira','admadureira','madureiranewsrj','parquemadureira','viadutodemadureira','vicentedecarvalho','vicentedecarvalhorj','vicentedecarvalhocity, bdnvicentecarvalho','estadioniltonsantos','estádioniltonsantos','estádioníltonsantos','parquedemadureirarj','parquedemadureiraoficial','copacabana(2,483,635)','copacabanabeach','copacabanapalace','fortedecopacabana','brásdepina, brásdepinarj, brásdepinaraiz','duquedecaxias','duquedecaxiasrj','forteduquedecaxias','corridaduquedecaxias','esteticaduquedecaxias','tattooduquedecaxias','clubeduquedecaxias','duquedecaxiastop','duquedecaxiasrjbrasil','duquedecaxiasfc','duquedecaxiasfutebolclube','engenhdarainha','engenhodarainharj','engenhodarainhastation'],
     user_blacklist={},
     max_like_for_one_tag=50,
-    follow_per_day=300,
+    follow_per_day=0,
     follow_time=1 * 60,
-    unfollow_per_day=300,
+    unfollow_per_day=0,
     unfollow_break_min=15,
     unfollow_break_max=30,
     log_mod=0,
@@ -73,39 +71,4 @@ while True:
     #time.sleep(30)
 
     if mode == 0:
-        bot.new_auto_mod()
-
-    elif mode == 1:
-        check_status(bot)
-        while bot.self_following - bot.self_follower > 200:
-            unfollow_protocol(bot)
-            time.sleep(10 * 60)
-            check_status(bot)
-        while bot.self_following - bot.self_follower < 400:
-            while len(bot.user_info_list) < 50:
-                feed_scanner(bot)
-                time.sleep(5 * 60)
-                follow_protocol(bot)
-                time.sleep(10 * 60)
-                check_status(bot)
-
-    elif mode == 2:
-        bot.bot_mode = 1
-        bot.new_auto_mod()
-
-    elif mode == 3:
-        unfollow_protocol(bot)
-        time.sleep(10 * 60)
-
-    elif mode == 4:
-        feed_scanner(bot)
-        time.sleep(60)
-        follow_protocol(bot)
-        time.sleep(10 * 60)
-
-    elif mode == 5:
-        bot.bot_mode = 2
-        unfollow_protocol(bot)
-
-    else:
-        print("Wrong mode!")
+        bot.auto_mod()
