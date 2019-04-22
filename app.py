@@ -11,11 +11,11 @@ from src import InstaBot
 if __name__ == '__main__':
 
     bot = InstaBot(
-        login=os.environ.get('THAIS_LOGIN', ''),
-        password=os.environ.get('THIAS_PASSWORD', ''),
+        login=os.environ.get('LOGIN', ''),
+        password=os.environ.get('PASSWORD', ''),
         like_per_day=1400,
         comments_per_day=0,
-        tag_list=['iraja','irajá','irajagastro','projetovidanova','irajarj','irajattokas','gabrielzinhodoiraja','irajacity','irajágastrô','irajá555','viladapenha','viladapenharj','viladapenhanews','viladapenhacity','viladapenhacomercial','viladapenhabasquete','viladapenhamaster','viladapenhario','viladapenha_rj','viladapenhadadepressao','vilakosmos','vilakosmosrj','fjuvilakosmos','universalvilakosmos','sdsvilakosmos','pilatesvilakosmos — rua Aiera','madureira,  #naçãomadureira','madureirashopping','joemadureira','nacaomadureira','mercadaodemadureira','admadureira','madureiranewsrj','parquemadureira','viadutodemadureira','vicentedecarvalho','vicentedecarvalhorj','vicentedecarvalhocity, bdnvicentecarvalho','estadioniltonsantos','estádioniltonsantos','estádioníltonsantos','parquedemadureirarj','parquedemadureiraoficial','copacabana(2,483,635)','copacabanabeach','copacabanapalace','fortedecopacabana','brásdepina, brásdepinarj, brásdepinaraiz','duquedecaxias','duquedecaxiasrj','forteduquedecaxias','corridaduquedecaxias','esteticaduquedecaxias','tattooduquedecaxias','clubeduquedecaxias','duquedecaxiastop','duquedecaxiasrjbrasil','duquedecaxiasfc','duquedecaxiasfutebolclube','engenhdarainha','engenhodarainharj','engenhodarainhastation'],
+        tag_list=['riodejaneiro'],
         user_blacklist={},
         max_like_for_one_tag=50,
         follow_per_day=0,
@@ -51,56 +51,6 @@ if __name__ == '__main__':
         ],
         unfollow_whitelist=['example_user_1', 'example_user_2'])
 
-    mom_bot = InstaBot(
-        login=os.environ.get('MOM_LOGIN', ''),
-        password=os.environ.get('MOM_PASSWORD', ''),
-        like_per_day=1400,
-        comments_per_day=0,
-        tag_list=['iraja', 'irajá', 'irajagastro', 'projetovidanova', 'irajarj', 'irajattokas', 'gabrielzinhodoiraja',
-                  'irajacity', 'irajágastrô', 'irajá555', 'viladapenha', 'viladapenharj', 'viladapenhanews',
-                  'viladapenhacity', 'viladapenhacomercial', 'viladapenhabasquete', 'viladapenhamaster',
-                  'viladapenhario', 'viladapenha_rj', 'viladapenhadadepressao', 'vilakosmos', 'vilakosmosrj',
-                  'fjuvilakosmos', 'universalvilakosmos', 'sdsvilakosmos', 'pilatesvilakosmos — rua Aiera',
-                  'madureira,  #naçãomadureira', 'madureirashopping', 'joemadureira', 'nacaomadureira',
-                  'mercadaodemadureira', 'admadureira', 'madureiranewsrj', 'parquemadureira', 'viadutodemadureira',
-                  'vicentedecarvalho', 'vicentedecarvalhorj',],
-        user_blacklist={},
-        max_like_for_one_tag=150,
-        follow_per_day=0,
-        follow_time=0,
-        unfollow_per_day=0,
-        unfollow_break_min=0,
-        unfollow_break_max=0,
-        log_mod=0,
-        proxy='189.61.107.94:8080',
-        comment_list=[[]],
-        unwanted_username_list=[],
-        unfollow_whitelist=[])
-
-    dad_bot = InstaBot(
-        login=os.environ.get('DAD_LOGIN', ''),
-        password=os.environ.get('DAD_PASSWORD', ''),
-        like_per_day=1400,
-        comments_per_day=0,
-        tag_list=['vicentedecarvalhocity, bdnvicentecarvalho',
-                  'estadioniltonsantos', 'estádioniltonsantos', 'estádioníltonsantos', 'parquedemadureirarj',
-                  'parquedemadureiraoficial', 'copacabana(2,483,635)', 'copacabanabeach', 'copacabanapalace',
-                  'fortedecopacabana', 'brásdepina, brásdepinarj, brásdepinaraiz', 'duquedecaxias', 'duquedecaxiasrj',
-                  'forteduquedecaxias', 'corridaduquedecaxias', 'esteticaduquedecaxias', 'tattooduquedecaxias',
-                  'clubeduquedecaxias', 'duquedecaxiastop', 'duquedecaxiasrjbrasil', 'duquedecaxiasfc',
-                  'duquedecaxiasfutebolclube', 'engenhdarainha', 'engenhodarainharj', 'engenhodarainhastation'],
-        user_blacklist={},
-        max_like_for_one_tag=150,
-        follow_per_day=0,
-        follow_time=0,
-        unfollow_per_day=0,
-        unfollow_break_min=0,
-        unfollow_break_max=0,
-        log_mod=0,
-        proxy='177.38.181.82:8080',
-        comment_list=[[]],
-        unwanted_username_list=[],
-        unfollow_whitelist=[])
     while True:
 
         mode = 0
