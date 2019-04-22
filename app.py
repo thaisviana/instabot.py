@@ -15,7 +15,7 @@ if __name__ == '__main__':
         password=os.environ.get('PASSWORD', ''),
         like_per_day=1400,
         comments_per_day=0,
-        tag_list=['riodejaneiro'],
+        tag_list=['#riodejaneiro'],
         user_blacklist={},
         max_like_for_one_tag=50,
         follow_per_day=0,
@@ -50,6 +50,8 @@ if __name__ == '__main__':
             'follow', 'follower', 'gain', '.id', '_id', 'bags'
         ],
         unfollow_whitelist=['example_user_1', 'example_user_2'])
+
+    bot.locations()
 
     while True:
 
