@@ -3,8 +3,11 @@
 
 from __future__ import print_function
 
+import os
+
 from selenium.webdriver.common.keys import Keys
 
+from src.location_bot.format_csv_bot import format_csv
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
 import atexit
@@ -1041,37 +1044,92 @@ class InstaBot:
 
     # TODO: to move it to other file.
     def locations(self):
+        self.write_log('Starting location bot...')
+
+        # Check if the directory exist, else it'll create the folder.
+        if not os.path.exists('locales_from_rio'):
+            self.write_log('Creating locales_from_rio folder')
+            os.makedirs('locales_from_rio')
+
+        # Webdriver
         driver = webdriver.Firefox()
         driver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
-        logged = False
-        login_attempt = True
-        if not logged:
-            while login_attempt:
-                try:
-                    login_form = driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
-                    password_form = driver.find_element_by_xpath("//input[@aria-label='Password']")
-                    login_attempt = False
-                except:
-                    print('Login page is loading yet')
-            #Trying to sign in on Instagram
+        self.write_log('Location Bot is trying login...')
+        while True:
+            try:
+                login_form = driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
+                password_form = driver.find_element_by_xpath("//input[@aria-label='Password']")
+                break
+            except:
+                pass
+
+        # Trying to sign in on Instagram
+        try:
             login_form.send_keys(self.user_login)
             password_form.send_keys(self.user_password)
             driver.find_element_by_class_name('_0mzm-.sqdOP.L3NKy').click()
+            self.write_log('Location Bot login success!')
+        except:
+            self.write_log('ERROR: Login or Password is invalid! Exiting bot..')
+            return False
 
         # All times that the Firefox open and the bot sign in the Instagram
         # it'll ask if you want to turn on the notifications.
-        alert_notification = True
-        while alert_notification:
+        while True:
             try:
                 driver.find_element_by_class_name('aOOlW.HoLwm').click()
-                alert_notification = False
+                break
             except:
-                print('Page is loading yet')
+                pass
 
-        search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-        search_field.send_keys('Paquetá')
-        # TODO: send the return and get the url
-        search_field.send_keys(Keys.RETURN)
+        while True:
+            file_name = input('Format txt already defined. Type your name file: ')
+            if not os.path.exists(f'./locales_from_rio/{file_name}.txt'):
+                file = open(f'locales_from_rio/{file_name}.txt', 'w')
+                break
+
+        answer = input('Will you use a csv file? [Y/N] ')
+        if answer.lower() == 'y':
+            print('P.S.: Put your csv file in the project root')
+            file_name = input('Just put the file name without ".csv" \nName csv file: ')
+            start_row = input('When your location will start. \nStart row: ')
+            column = input(' \nColumn:')
+            city = input(' \nCity: ')
+            country = input(' \nCountry: ')
+            locations_list = format_csv(f'./{file_name}.csv', int(start_row), int(column), city, country)
+
+        for locations in locations_list:
+            if 'https://www.instagram.com/' == driver.current_url:
+                search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
+                search_field.send_keys(locations)
+                while 'https://www.instagram.com/' == driver.current_url:
+                    search_field.send_keys(Keys.RETURN)
+
+            # TODO: Selenium is broken in this part.
+            #  Problem: https://docs.seleniumhq.org/exceptions/stale_element_reference.jsp
+            elif 'https://www.instagram.com/explore/locations/' in driver.current_url:
+                time.sleep(1)
+                while True:
+                    try:
+                        search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
+                    except:
+                        print("I'm not working :c")
+                search_field.send_keys(locations)
+                while 'https://www.instagram.com/explore/locations/' in driver.current_url:
+                    search_field.send_keys(Keys.RETURN)
+            else:
+                # TODO: this case.
+                print('error?')
+
+            url = driver.current_url
+            url = url.split('/')
+            location_id = url[5]
+            print(f"['name': ],"
+                  f"['name_location_url': {url[6]}], "
+                  f"[ 'url_id': {location_id} ], "
+                  f"[ 'url_id_formated': l:{location_id} ], "
+                  f"[ 'error': False ]")
+
 
 
 
