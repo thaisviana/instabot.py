@@ -1098,25 +1098,18 @@ class InstaBot:
             country = input(' \nCountry: ')
             locations_list = format_csv(f'./{file_name}.csv', int(start_row), int(column), city, country)
 
-        for locations in locations_list:
+        for location in locations_list:
             if 'https://www.instagram.com/' == driver.current_url:
                 search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-                search_field.send_keys(locations)
+                search_field.send_keys(location)
                 while 'https://www.instagram.com/' == driver.current_url:
                     search_field.send_keys(Keys.RETURN)
 
-            # TODO: Selenium is broken in this part.
-            #  Problem: https://docs.seleniumhq.org/exceptions/stale_element_reference.jsp
             elif 'https://www.instagram.com/explore/locations/' in driver.current_url:
                 time.sleep(1)
                 while True:
-                    try:
-                        search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-                    except:
-                        print("I'm not working :c")
-                search_field.send_keys(locations)
-                while 'https://www.instagram.com/explore/locations/' in driver.current_url:
-                    search_field.send_keys(Keys.RETURN)
+                    search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
+                    search_field.send_keys(location)
             else:
                 # TODO: this case.
                 print('error?')
