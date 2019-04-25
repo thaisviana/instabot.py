@@ -52,10 +52,10 @@ if __name__ == '__main__':
         unfollow_whitelist=['example_user_1', 'example_user_2'])
 
     bot.locations()
-
-    while True:
-
-        mode = 0
-
-        if mode == 0:
-            bot.auto_mod()
+    #
+    # while True:
+    #
+    #     mode = 0
+    #
+    #     if mode == 0:
+    #         bot.auto_mod()

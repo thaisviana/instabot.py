@@ -1082,53 +1082,35 @@ class InstaBot:
             except:
                 pass
 
-        while True:
-            file_name = input('Format txt already defined. Type your name file: ')
-            if not os.path.exists(f'./locales_from_rio/{file_name}.txt'):
-                file = open(f'locales_from_rio/{file_name}.txt', 'w')
-                break
+        # while True:
+        #     file_name = 'rio_instagram'
+        #     if not os.path.exists(f'./locales_from_rio/{file_name}.txt'):
+        #         file = open(f'locales_from_rio/{file_name}.txt', 'w')
+        #         break
 
-        answer = input('Will you use a csv file? [Y/N] ')
-        if answer.lower() == 'y':
-            print('P.S.: Put your csv file in the project root')
-            file_name = input('Just put the file name without ".csv" \nName csv file: ')
-            start_row = input('When your location will start. \nStart row: ')
-            column = input(' \nColumn:')
-            city = input(' \nCity: ')
-            country = input(' \nCountry: ')
-            locations_list = format_csv(f'./{file_name}.csv', int(start_row), int(column), city, country)
+        print('Limite_Bairro')
+        file_name = 'src/location_bot/Limite_Bairro'
+        start_row = 1
+        column = 1
+        city = 'Rio de Janeiro'
+        country = 'Brasil'
+        locations_list = format_csv(f'./{file_name}.csv', start_row, column, city, country)
+        instagram_locations_ids = []
 
-        for locations in locations_list:
+        for location in locations_list:
             if 'https://www.instagram.com/' == driver.current_url:
                 search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-                search_field.send_keys(locations)
+                search_field.send_keys(location)
                 while 'https://www.instagram.com/' == driver.current_url:
                     search_field.send_keys(Keys.RETURN)
-
-            # TODO: Selenium is broken in this part.
-            #  Problem: https://docs.seleniumhq.org/exceptions/stale_element_reference.jsp
-            elif 'https://www.instagram.com/explore/locations/' in driver.current_url:
-                time.sleep(1)
-                while True:
-                    try:
-                        search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-                    except:
-                        print("I'm not working :c")
-                search_field.send_keys(locations)
-                while 'https://www.instagram.com/explore/locations/' in driver.current_url:
-                    search_field.send_keys(Keys.RETURN)
-            else:
-                # TODO: this case.
-                print('error?')
 
             url = driver.current_url
             url = url.split('/')
             location_id = url[5]
-            print(f"['name': ],"
-                  f"['name_location_url': {url[6]}], "
-                  f"[ 'url_id': {location_id} ], "
-                  f"[ 'url_id_formated': l:{location_id} ], "
-                  f"[ 'error': False ]")
+
+            driver.get('https://www.instagram.com/')
+            instagram_locations_ids.append({'location_id': location_id,'name': location})
+        print(instagram_locations_ids)
 
 
 
