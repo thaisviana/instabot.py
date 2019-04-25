@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+
+import os
+
+from selenium.webdriver.common.keys import Keys
+
+from src.location_bot.format_csv_bot import format_csv
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
 import atexit
@@ -23,6 +29,7 @@ from .sql_updates import get_username_random, get_username_to_unfollow_random
 from .sql_updates import check_and_insert_user_agent
 from fake_useragent import UserAgent
 import re
+from selenium import webdriver
 
 class InstaBot:
     """
@@ -482,13 +489,13 @@ class InstaBot:
                             for blacklisted_user_name, blacklisted_user_id in self.user_blacklist.items(
                             ):
                                 if self.media_by_tag[i]['node']['owner'][
-                                        'id'] == blacklisted_user_id:
+                                    'id'] == blacklisted_user_id:
                                     self.write_log(
                                         "Not liking media owned by blacklisted user: "
                                         + blacklisted_user_name)
                                     return False
                             if self.media_by_tag[i]['node']['owner'][
-                                    'id'] == self.user_id:
+                                'id'] == self.user_id:
                                 self.write_log(
                                     "Keep calm - It's your own media ;)")
                                 return False
@@ -499,7 +506,7 @@ class InstaBot:
                                 if (len(self.media_by_tag[i]['node']['edge_media_to_caption']['edges']) > 1):
                                     caption = self.media_by_tag[i]['node']['edge_media_to_caption'][
                                         'edges'][0]['node']['text'].encode(
-                                            'ascii', errors='ignore')
+                                        'ascii', errors='ignore')
                                     tag_blacklist = set(self.tag_blacklist)
                                     if sys.version_info[0] == 3:
                                         tags = {
@@ -784,7 +791,7 @@ class InstaBot:
 
     def new_auto_mod_follow(self):
         if time.time() > self.next_iteration["Follow"] and \
-                        self.follow_per_day != 0 and len(self.media_by_tag) > 0:
+                self.follow_per_day != 0 and len(self.media_by_tag) > 0:
             if self.media_by_tag[0]['node']["owner"]["id"] == self.user_id:
                 self.write_log("Keep calm - It's your own profile ;)")
                 return
@@ -810,7 +817,7 @@ class InstaBot:
                 self.write_log(log_string)
                 self.auto_unfollow()
                 self.next_iteration["Unfollow"] = time.time() + \
-                                                    self.add_time(self.unfollow_delay)
+                                                  self.add_time(self.unfollow_delay)
             if self.bot_mode == 1:
                 unfollow_protocol(self)
 
@@ -1034,3 +1041,99 @@ class InstaBot:
                 self.logger.info(log_text)
             except UnicodeEncodeError:
                 print("Your text has unicode problem!")
+
+    # TODO: to move it to other file.
+    def locations(self):
+        self.write_log('Starting location bot...')
+
+        # Check if the directory exist, else it'll create the folder.
+        if not os.path.exists('locales_from_rio'):
+            self.write_log('Creating locales_from_rio folder')
+            os.makedirs('locales_from_rio')
+
+        # Webdriver
+        driver = webdriver.Firefox()
+        driver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
+        self.write_log('Location Bot is trying login...')
+        while True:
+            try:
+                login_form = driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
+                password_form = driver.find_element_by_xpath("//input[@aria-label='Password']")
+                break
+            except:
+                pass
+
+        # Trying to sign in on Instagram
+        try:
+            login_form.send_keys(self.user_login)
+            password_form.send_keys(self.user_password)
+            driver.find_element_by_class_name('_0mzm-.sqdOP.L3NKy').click()
+            self.write_log('Location Bot login success!')
+        except:
+            self.write_log('ERROR: Login or Password is invalid! Exiting bot..')
+            return False
+
+        # All times that the Firefox open and the bot sign in the Instagram
+        # it'll ask if you want to turn on the notifications.
+        while True:
+            try:
+                driver.find_element_by_class_name('aOOlW.HoLwm').click()
+                break
+            except:
+                pass
+
+        while True:
+            file_name = input('Format txt already defined. Type your name file: ')
+            if not os.path.exists(f'./locales_from_rio/{file_name}.txt'):
+                file = open(f'locales_from_rio/{file_name}.txt', 'w')
+                break
+
+        answer = input('Will you use a csv file? [Y/N] ')
+        if answer.lower() == 'y':
+            print('P.S.: Put your csv file in the project root')
+            file_name = input('Just put the file name without ".csv" \nName csv file: ')
+            start_row = input('When your location will start. \nStart row: ')
+            column = input(' \nColumn:')
+            city = input(' \nCity: ')
+            country = input(' \nCountry: ')
+            locations_list = format_csv(f'./{file_name}.csv', int(start_row), int(column), city, country)
+
+        for locations in locations_list:
+            if 'https://www.instagram.com/' == driver.current_url:
+                search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
+                search_field.send_keys(locations)
+                while 'https://www.instagram.com/' == driver.current_url:
+                    search_field.send_keys(Keys.RETURN)
+
+            # TODO: Selenium is broken in this part.
+            #  Problem: https://docs.seleniumhq.org/exceptions/stale_element_reference.jsp
+            elif 'https://www.instagram.com/explore/locations/' in driver.current_url:
+                time.sleep(1)
+                while True:
+                    try:
+                        search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
+                    except:
+                        print("I'm not working :c")
+                search_field.send_keys(locations)
+                while 'https://www.instagram.com/explore/locations/' in driver.current_url:
+                    search_field.send_keys(Keys.RETURN)
+            else:
+                # TODO: this case.
+                print('error?')
+
+            url = driver.current_url
+            url = url.split('/')
+            location_id = url[5]
+            print(f"['name': ],"
+                  f"['name_location_url': {url[6]}], "
+                  f"[ 'url_id': {location_id} ], "
+                  f"[ 'url_id_formated': l:{location_id} ], "
+                  f"[ 'error': False ]")
+
+
+
+
+
+
+
+
