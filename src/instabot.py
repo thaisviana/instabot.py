@@ -1117,16 +1117,6 @@ class InstaBot:
             url = driver.current_url
             url = url.split('/')
             location_id = url[5]
-            print(f"['name': ],"
-                  f"['name_location_url': {url[6]}], "
-                  f"[ 'url_id': {location_id} ], "
-                  f"[ 'url_id_formated': l:{location_id} ], "
-                  f"[ 'error': False ]")
-
-
-
-
-
 
 
 
