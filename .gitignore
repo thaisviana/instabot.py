@@ -13,6 +13,8 @@ env/
 bin/
 bin/*
 build/
+imgs/*
+imgs/
 develop-eggs/
 dist/
 downloads/

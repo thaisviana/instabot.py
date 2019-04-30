@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import dotenv
+from src import InstaBot
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
@@ -54,10 +55,7 @@ location_ids = [{'location_id': '1280110728803296', 'name': 'Paquetá, Rio de Ja
 {'location_id': '227478062', 'name': 'Realengo, Rio de Janeiro, Brasil'},]
 
 
-from src import InstaBot
-
 if __name__ == '__main__':
-
 
     tata_bot = InstaBot(
         login=os.environ.get('LOGIN', ''),
@@ -74,7 +72,7 @@ if __name__ == '__main__':
         unfollow_break_max=30,
         log_mod=0,
         proxy='',
-        database_name='other_follows_db.db',
+        database_name='follows_db.db',
         # List of list of words, each of which will be used to generate comment
         # For example: "This shot feels wow!"
         comment_list=[["this", "the", "your"],
