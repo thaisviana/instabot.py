@@ -58,13 +58,12 @@ from src import InstaBot
 
 if __name__ == '__main__':
 
-
-    tata_bot = InstaBot(
-        login=os.environ.get('LOGIN', ''),
-        password=os.environ.get('PASSWORD', ''),
+    bot = InstaBot(
+        login=os.environ.get('TH_LOGIN', ''),
+        password=os.environ.get('TH_PASSWORD', ''),
         like_per_day=1400,
         comments_per_day=0,
-        tag_list=['l:' + id['location_id'] for id in location_ids][::-2],
+        tag_list=['l:'+id['location_id'] for id in location_ids][::2],
         user_blacklist={},
         max_like_for_one_tag=250,
         follow_per_day=0,
@@ -74,17 +73,17 @@ if __name__ == '__main__':
         unfollow_break_max=30,
         log_mod=0,
         proxy='',
-        database_name='other_follows_db.db',
+        database_name='follows_db.db',
         # List of list of words, each of which will be used to generate comment
         # For example: "This shot feels wow!"
         comment_list=[["this", "the", "your"],
                       ["photo", "picture", "pic", "shot", "snapshot"],
                       ["is", "looks", "feels", "is really"],
                       ["great", "super", "good", "very good", "good", "wow",
-                       "WOW", "cool", "GREAT", "magnificent", "magical",
+                       "WOW", "cool", "GREAT","magnificent", "magical",
                        "very cool", "stylish", "beautiful", "so beautiful",
                        "so stylish", "so professional", "lovely",
-                       "so lovely", "very lovely", "glorious", "so glorious",
+                       "so lovely", "very lovely", "glorious","so glorious",
                        "very glorious", "adorable", "excellent", "amazing"],
                       [".", "..", "...", "!", "!!", "!!!"]],
         # Use unwanted_username_list to block usernames containing a string
@@ -100,11 +99,11 @@ if __name__ == '__main__':
             'follow', 'follower', 'gain', '.id', '_id', 'bags'
         ],
         unfollow_whitelist=['example_user_1', 'example_user_2'])
-#    bot.locations()
+
 
     while True:
 
         mode = 0
 
         if mode == 0:
-            tata_bot.auto_mod()
+            bot.auto_mod()

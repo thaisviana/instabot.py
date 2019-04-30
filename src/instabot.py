@@ -540,7 +540,7 @@ class InstaBot:
                                          (self.media_by_tag[i]['node']['id'])
                             self.write_log(log_string)
                             like = self.add_to_api_small_big(i)
-                            #like = self.like(self.media_by_tag[i]['node']['id'])
+                            like = self.like(self.media_by_tag[i]['node']['id'])
                             # comment = self.comment(self.media_by_tag[i]['id'], 'Cool!')
                             # follow = self.follow(self.media_by_tag[i]["owner"]["id"])
                             if like != 0:
@@ -1110,7 +1110,7 @@ class InstaBot:
 
             driver.get('https://www.instagram.com/')
             instagram_locations_ids.append({'location_id': location_id,'name': location})
-        print(instagram_locations_ids)
+            print({'location_id': location_id, 'name': location})
 
 
 
