@@ -101,3 +101,6 @@ ENV/
 
 # Selenium
 geckodriver.log
+
+#Images downloaded
+imgs

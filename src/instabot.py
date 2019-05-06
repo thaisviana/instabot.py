@@ -549,7 +549,7 @@ class InstaBot:
                                     self.error_400 = 0
                                     self.like_counter += 1
                                     short = self.get_instagram_url_from_media_id(self.media_by_tag[i]['node']['id'])
-                                    log_string = "Liked: %s. Like #%i." % \
+                                    log_string = "Added: %s. Add #%i." % \
                                                  (short,
                                                   self.like_counter)
                                     insert_media(self,
@@ -557,7 +557,7 @@ class InstaBot:
                                                  status="200")
                                     self.write_log(log_string)
                                 elif like.status_code == 400:
-                                    log_string = "Not liked: %i" \
+                                    log_string = "Not Added: %i" \
                                                  % (like.status_code)
                                     self.write_log(log_string)
                                     insert_media(self,
@@ -738,10 +738,15 @@ class InstaBot:
     def new_auto_mod(self):
         while True:
             now = datetime.datetime.now()
-            if (
-                    datetime.time(self.start_at_h, self.start_at_m) <= now.time()
-                    and now.time() <= datetime.time(self.end_at_h, self.end_at_m)
-            ):
+            # distance between start time and now
+            dns = self.time_dist(datetime.time(self.start_at_h,
+                                               self.start_at_m),
+                                 now.time())
+            # distance between end time and now
+            dne = self.time_dist(datetime.time(self.end_at_h,
+                                               self.end_at_m),
+                                 now.time())
+            if (dns == 0 or dne < dns) and dne != 0:
                 # ------------------- Get media_id -------------------
                 if len(self.media_by_tag) == 0:
                     self.get_media_id_by_tag(random.choice(self.tag_list))
@@ -885,12 +890,11 @@ class InstaBot:
                 log_string = "api limit reached from instagram. Will try later"
                 self.write_log(log_string)
                 return False
-            for wluser in self.unfollow_whitelist:
-                if wluser == current_user:
-                    log_string = (
-                        "found whitelist user, starting search again")
-                    self.write_log(log_string)
-                    break
+            if current_user in self.unfollow_whitelist:
+                log_string = "found whitelist user, not unfollowing"
+                # problem, if just one user in unfollowlist -> might create inf. loop. therefore just skip round
+                self.write_log(log_string)
+                return False
             else:
                 checking = False
 
@@ -1043,80 +1047,65 @@ class InstaBot:
                 print("Your text has unicode problem!")
 
     # TODO: to move it to other file.
-    def locations(self):
-        self.write_log('Starting location bot...')
-
-        # Check if the directory exist, else it'll create the folder.
-        if not os.path.exists('locales_from_rio'):
-            self.write_log('Creating locales_from_rio folder')
-            os.makedirs('locales_from_rio')
-
-        # Webdriver
-        driver = webdriver.Firefox()
-        driver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
-        self.write_log('Location Bot is trying login...')
-        while True:
-            try:
-                login_form = driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
-                password_form = driver.find_element_by_xpath("//input[@aria-label='Password']")
-                break
-            except:
-                pass
-
-        # Trying to sign in on Instagram
-        try:
-            login_form.send_keys(self.user_login)
-            password_form.send_keys(self.user_password)
-            driver.find_element_by_class_name('_0mzm-.sqdOP.L3NKy').click()
-            self.write_log('Location Bot login success!')
-        except:
-            self.write_log('ERROR: Login or Password is invalid! Exiting bot..')
-            return False
-
-        # All times that the Firefox open and the bot sign in the Instagram
-        # it'll ask if you want to turn on the notifications.
-        while True:
-            try:
-                driver.find_element_by_class_name('aOOlW.HoLwm').click()
-                break
-            except:
-                pass
-
-        while True:
-            file_name = input('Format txt already defined. Type your name file: ')
-            if not os.path.exists(f'./locales_from_rio/{file_name}.txt'):
-                file = open(f'locales_from_rio/{file_name}.txt', 'w')
-                break
-
-        answer = input('Will you use a csv file? [Y/N] ')
-        if answer.lower() == 'y':
-            print('P.S.: Put your csv file in the project root')
-            file_name = input('Just put the file name without ".csv" \nName csv file: ')
-            start_row = input('When your location will start. \nStart row: ')
-            column = input(' \nColumn:')
-            city = input(' \nCity: ')
-            country = input(' \nCountry: ')
-            locations_list = format_csv(f'./{file_name}.csv', int(start_row), int(column), city, country)
-
-        for location in locations_list:
-            if 'https://www.instagram.com/' == driver.current_url:
-                search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-                search_field.send_keys(location)
-                while 'https://www.instagram.com/' == driver.current_url:
-                    search_field.send_keys(Keys.RETURN)
-
-            elif 'https://www.instagram.com/explore/locations/' in driver.current_url:
-                time.sleep(1)
-                while True:
-                    search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-                    search_field.send_keys(location)
-            else:
-                # TODO: this case.
-                print('error?')
-
-            url = driver.current_url
-            url = url.split('/')
-            location_id = url[5]
-
-
-
+    # def locations(self):
+    #     self.write_log('Starting location bot...')
+    #
+    #     # Webdriver
+    #     driver = webdriver.Firefox()
+    #     driver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
+    #     self.write_log('Location Bot is trying login...')
+    #     while True:
+    #         try:
+    #             login_form = driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
+    #             password_form = driver.find_element_by_xpath("//input[@aria-label='Password']")
+    #             break
+    #         except:
+    #             pass
+    #
+    #     # Trying to sign in on Instagram
+    #     try:
+    #         login_form.send_keys(self.user_login)
+    #         password_form.send_keys(self.user_password)
+    #         driver.find_element_by_class_name('_0mzm-.sqdOP.L3NKy').click()
+    #         self.write_log('Location Bot login success!')
+    #     except:
+    #         self.write_log('ERROR: Login or Password is invalid! Exiting bot..')
+    #         return False
+    #
+    #     # All times that the Firefox open and the bot sign in the Instagram
+    #     # it'll ask if you want to turn on the notifications.
+    #     while True:
+    #         try:
+    #             driver.find_element_by_class_name('aOOlW.HoLwm').click()
+    #             break
+    #         except:
+    #             pass
+    #
+    #
+    #     answer = input('Will you use a csv file? [Y/N] ')
+    #     if answer.lower() == 'y':
+    #         print('P.S.: Put your csv file in the project root')
+    #         file_name = input('Just put the file name without ".csv" \nName csv file: ')
+    #         start_row = input('When your location will start. \nStart row: ')
+    #         column = input(' \nColumn:')
+    #         locations_list = format_csv(f'./{file_name}.csv', int(start_row), int(column), 'Rio de Janeiro', 'Brazil')
+    #
+    #     for location in locations_list:
+    #         if 'https://www.instagram.com/' == driver.current_url:
+    #             search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
+    #             search_field.send_keys(location)
+    #             while 'https://www.instagram.com/' == driver.current_url:
+    #                 search_field.send_keys(Keys.RETURN)
+    #
+    #         elif 'https://www.instagram.com/explore/locations/' in driver.current_url:
+    #             time.sleep(1)
+    #             while True:
+    #                 search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
+    #                 search_field.send_keys(location)
+    #         else:
+    #             # TODO: this case.
+    #             print('error?')
+    #
+    #         url = driver.current_url
+    #         url = url.split('/')
+    #         location_id = url[5]
