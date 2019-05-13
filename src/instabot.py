@@ -7,6 +7,7 @@ import os
 
 from selenium.webdriver.common.keys import Keys
 
+from hashtag import extract_hashtag
 from src.location_bot.format_csv_bot import format_csv
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
@@ -618,10 +619,12 @@ class InstaBot:
                 "text": text,
                 "taken_at_timestamp": self.media_by_tag[i]['node']['taken_at_timestamp'],
                 "count_liked_by": self.media_by_tag[i]['node']['edge_liked_by']['count'],
+                "hashtag": extract_hashtag.get_hashtag(text)
+
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
-            r = requests.post('https://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
+            r = requests.post('small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
         except:
             logging.exception("Except on small/big!")
             r = 0
@@ -1045,67 +1048,3 @@ class InstaBot:
                 self.logger.info(log_text)
             except UnicodeEncodeError:
                 print("Your text has unicode problem!")
-
-    # TODO: to move it to other file.
-    # def locations(self):
-    #     self.write_log('Starting location bot...')
-    #
-    #     # Webdriver
-    #     driver = webdriver.Firefox()
-    #     driver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
-    #     self.write_log('Location Bot is trying login...')
-    #     while True:
-    #         try:
-    #             login_form = driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
-    #             password_form = driver.find_element_by_xpath("//input[@aria-label='Password']")
-    #             break
-    #         except:
-    #             pass
-    #
-    #     # Trying to sign in on Instagram
-    #     try:
-    #         login_form.send_keys(self.user_login)
-    #         password_form.send_keys(self.user_password)
-    #         driver.find_element_by_class_name('_0mzm-.sqdOP.L3NKy').click()
-    #         self.write_log('Location Bot login success!')
-    #     except:
-    #         self.write_log('ERROR: Login or Password is invalid! Exiting bot..')
-    #         return False
-    #
-    #     # All times that the Firefox open and the bot sign in the Instagram
-    #     # it'll ask if you want to turn on the notifications.
-    #     while True:
-    #         try:
-    #             driver.find_element_by_class_name('aOOlW.HoLwm').click()
-    #             break
-    #         except:
-    #             pass
-    #
-    #
-    #     answer = input('Will you use a csv file? [Y/N] ')
-    #     if answer.lower() == 'y':
-    #         print('P.S.: Put your csv file in the project root')
-    #         file_name = input('Just put the file name without ".csv" \nName csv file: ')
-    #         start_row = input('When your location will start. \nStart row: ')
-    #         column = input(' \nColumn:')
-    #         locations_list = format_csv(f'./{file_name}.csv', int(start_row), int(column), 'Rio de Janeiro', 'Brazil')
-    #
-    #     for location in locations_list:
-    #         if 'https://www.instagram.com/' == driver.current_url:
-    #             search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-    #             search_field.send_keys(location)
-    #             while 'https://www.instagram.com/' == driver.current_url:
-    #                 search_field.send_keys(Keys.RETURN)
-    #
-    #         elif 'https://www.instagram.com/explore/locations/' in driver.current_url:
-    #             time.sleep(1)
-    #             while True:
-    #                 search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-    #                 search_field.send_keys(location)
-    #         else:
-    #             # TODO: this case.
-    #             print('error?')
-    #
-    #         url = driver.current_url
-    #         url = url.split('/')
-    #         location_id = url[5]

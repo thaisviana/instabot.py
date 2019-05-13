@@ -102,5 +102,9 @@ ENV/
 # Selenium
 geckodriver.log
 
-#Images downloaded
+# Images downloaded
 imgs
+
+# Testers
+app1.py
+app2.py

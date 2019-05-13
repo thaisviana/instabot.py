@@ -18,7 +18,7 @@ def update_to_api_small_big(shortcode, rgbhsl):
         }
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         data = json.dumps(data)
-        r = requests.patch('https://small-big-api.herokuapp.com/photo/' +shortcode, data=data, headers=headers)
+        r = requests.patch('https://small-big-api.herokuapp.com/photo/'+shortcode, data=data, headers=headers)
     except:
         r = 0
     print(shortcode, rgbhsl, r)
@@ -36,9 +36,10 @@ def img_rgbhsl_rep(img):
         blue_rep += color[1][2] * color[0]
     rgb_rep = (int(red_rep / total_occurences), int(green_rep / total_occurences), int(blue_rep / total_occurences))
     (hue, saturation, lightness) = rgb_to_hls(*rgb_rep)
-    return RGBHSL(rgb_rep[0],rgb_rep[1],rgb_rep[2],hue, saturation, lightness)
+    return RGBHSL(rgb_rep[0], rgb_rep[1], rgb_rep[2], hue, saturation, lightness)
 
 
+# 'src/extract_color/imgs'
 for image in os.listdir('imgs'):
     HUE, R, G, B = [], [], [], []
     if image.endswith('.jpg'):

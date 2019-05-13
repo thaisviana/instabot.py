@@ -61,7 +61,30 @@ location_ids = [{'location_id': '370287903', 'name': 'Vila Kosmos, Rio de Janeir
 {'location_id': '244097158', 'name': 'Inhoaíba, Rio de Janeiro, Brazil'},
 {'location_id': '248703424', 'name': 'Todos os Santos, Rio de Janeiro, Brazil'},
 {'location_id': '221313789', 'name': 'Jacaré, Rio de Janeiro, Brazil'},
-{'location_id': '234599175', 'name': 'Encantado, Rio de Janeiro, Brazil'},]
+{'location_id': '234599175', 'name': 'Encantado, Rio de Janeiro, Brazil'},
+{'location_id': '753897135', 'name': 'Rocha, Rio de Janeiro, Brazil'},
+{'location_id': '216348954', 'name': 'Méier, Rio de Janeiro, Brazil'},
+{'location_id': '505870750', 'name': 'Gamboa, Rio de Janeiro, Brazil'},
+{'location_id': '240419404', 'name': 'Santo Cristo, Rio de Janeiro, Brazil'},
+{'location_id': '731003687', 'name': 'Centro, Rio de Janeiro, Brazil'},
+{'location_id': '261277779', 'name': 'Sampaio, Rio de Janeiro, Brazil'},
+{'location_id': '238414735', 'name': 'Riachuelo, Rio de Janeiro, Brazil'},
+
+{'location_id': '238512597', 'name': 'Andaraí, Rio de Janeiro, Brazil'},
+{'location_id': '238123296', 'name': 'Catete, Rio de Janeiro, Brazil'},
+{'location_id': '224254831', 'name': 'Flamengo, Rio de Janeiro, Brazil'},
+{'location_id': '1863813143871730', 'name': 'Laranjeiras, Rio de Janeiro, Brazil'},
+{'location_id': '254693080', 'name': 'Guaratiba, Rio de Janeiro, Brazil'},
+{'location_id': '257453801', 'name': 'Vargem Grande, Rio de Janeiro, Brazil'},
+{'location_id': '214993240', 'name': 'Alto da Boa Vista, Rio de Janeiro, Brazil'},
+{'location_id': '219637024', 'name': 'Cosme Velho, Rio de Janeiro, Brazil'},
+{'location_id': '229688043', 'name': 'Curicica, Rio de Janeiro, Brazil'},
+
+{'location_id': '213396483', 'name': 'Botafogo, Rio de Janeiro, Brazil'},
+{'location_id': '229165580', 'name': 'Urca, Rio de Janeiro, Brazil'},
+{'location_id': '317148057', 'name': 'Cidade de Deus, Rio de Janeiro, Brazil'},
+{'location_id': '240377209', 'name': 'Sepetiba, Rio de Janeiro, Brazil'},
+{'location_id': '214220409', 'name': 'Anil, Rio de Janeiro, Brazil'},]
 
 if __name__ == '__main__':
 
