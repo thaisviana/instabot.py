@@ -1,5 +1,6 @@
 import json
 import re
+import time
 
 import requests
 
@@ -29,11 +30,9 @@ def update_all_hashtag():
     response = requests.get(path, stream=False)
     result = response.json()
     for small_big in result['result']:
-        url = f'https://instagram.com/p/{small_big["shortcode"]}/?__a=1'
-        r = requests.get(url, stream=False)
+        time.sleep(10)
         try:
-            result1 = r.json()
-            text = result1['graphql']['shortcode_media']['edge_media_to_caption']['edges'][0]['node']['text']
+            text = small_big['text']
             add_hashtag(small_big['shortcode'], get_hashtag(text))
         except:
             print(f"Warning: image: {small_big['shortcode']}. This page isn't available.")
