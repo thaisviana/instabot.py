@@ -5,7 +5,8 @@ import requests
 import json
 from collections import namedtuple
 
-def update_to_api_small_big(shortcode, rgbhsl):
+
+def add_colors(shortcode, rgbhsl):
     try:
         data = {
             'shortcode': shortcode,
@@ -46,6 +47,6 @@ for image in os.listdir('imgs'):
         try:
             img = Image.open(f'imgs/{image}').convert('RGB')
             rgbhsl = img_rgbhsl_rep(img)
-            update_to_api_small_big(image.replace('.jpg', ''), rgbhsl)
+            add_colors(image.replace('.jpg', ''), rgbhsl)
         except OSError:
             pass

@@ -8,7 +8,10 @@ dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 from src import InstaBot
 
-location_ids = [{'location_id': '370287903', 'name': 'Vila Kosmos, Rio de Janeiro, Brazil'},
+location_ids = [
+{'location_id': '119999494746573', 'name': 'Paquetá, Rio de Janeiro, Brazil'},
+{'location_id': '324148104', 'name': 'Galeão, Rio de Janeiro, Brazil'},
+{'location_id': '370287903', 'name': 'Vila Kosmos, Rio de Janeiro, Brazil'},
 {'location_id': '619566582', 'name': 'Vila Cosmos, Rio de Janeiro, Brazil'},
 {'location_id': '213588142', 'name': 'Marechal Hermes, Rio de Janeiro, Brazil'},
 {'location_id': '217589180', 'name': 'Vicente de Carvalho, Rio de Janeiro, Brazil'},
@@ -79,7 +82,6 @@ location_ids = [{'location_id': '370287903', 'name': 'Vila Kosmos, Rio de Janeir
 {'location_id': '214993240', 'name': 'Alto da Boa Vista, Rio de Janeiro, Brazil'},
 {'location_id': '219637024', 'name': 'Cosme Velho, Rio de Janeiro, Brazil'},
 {'location_id': '229688043', 'name': 'Curicica, Rio de Janeiro, Brazil'},
-
 {'location_id': '213396483', 'name': 'Botafogo, Rio de Janeiro, Brazil'},
 {'location_id': '229165580', 'name': 'Urca, Rio de Janeiro, Brazil'},
 {'location_id': '317148057', 'name': 'Cidade de Deus, Rio de Janeiro, Brazil'},
