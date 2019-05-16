@@ -6,6 +6,7 @@ import dotenv
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+
 location_ids = [{'location_id': '1280110728803296', 'name': 'Paquetá, Rio de Janeiro, Brasil'},
 {'location_id': '199463547260199', 'name': 'Freguesia (Ilha), Rio de Janeiro, Brasil'},
 {'location_id': '552578381419600', 'name': 'Bancários, Rio de Janeiro, Brasil'},
@@ -54,6 +55,7 @@ location_ids = [{'location_id': '1280110728803296', 'name': 'Paquetá, Rio de Ja
 {'location_id': '227478062', 'name': 'Realengo, Rio de Janeiro, Brasil'},]
 
 
+
 from src import InstaBot
 
 if __name__ == '__main__':
@@ -63,9 +65,9 @@ if __name__ == '__main__':
         password=os.environ.get('TH_PASSWORD', ''),
         like_per_day=1400,
         comments_per_day=0,
-        tag_list=['l:'+id['location_id'] for id in location_ids][::2],
+        tag_list=['l:394850810', 'l:1229728087178808', 'l:975591165', 'l:547663022385107', 'l:336848326891981', 'l:15679401', 'l:261264416', 'l:261766101', 'l:513735264', 'l:220220275', 'l:234646201', 'l:204536280154055', 'l:235688406', 'l:221030215', 'l:479236189105784', 'l:216766657', 'l:213456388', 'l:542835105893696', 'l:213719191', 'l:223372926', 'l:248373894', 'l:795648030', 'l:237995086', 'l:22398554', 'l:216766657', 'l:11510042', 'l:280193904', 'l:216781015', 'l:224470892', 'l:947557395409369', 'l:239025759', 'l:267012193', 'l:218339070', 'l:611833060', 'l:236573243', 'l:316914492106397', 'l:230234308', 'l:313730442', 'l:227192698', 'l:217934059', 'l:224350441', 'l:235004466', 'l:227478062'],
         user_blacklist={},
-        max_like_for_one_tag=250,
+        max_like_for_one_tag=30,
         follow_per_day=0,
         follow_time=1 * 60,
         unfollow_per_day=0,
@@ -73,7 +75,7 @@ if __name__ == '__main__':
         unfollow_break_max=30,
         log_mod=0,
         proxy='',
-        database_name='follows_db.db',
+        database_name='other_follows_db.db',
         # List of list of words, each of which will be used to generate comment
         # For example: "This shot feels wow!"
         comment_list=[["this", "the", "your"],

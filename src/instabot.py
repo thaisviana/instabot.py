@@ -397,6 +397,7 @@ class InstaBot:
                         self.media_by_tag = list(all_data['graphql']['hashtag']['edge_hashtag_to_media']['edges'])
                     except:
                         self.media_by_tag = []
+                        raise
                         self.write_log("Except on get_media!")
                         logging.exception("get_media_id_by_tag")
                 else:
@@ -541,7 +542,7 @@ class InstaBot:
                                          (self.media_by_tag[i]['node']['id'])
                             self.write_log(log_string)
                             like = self.add_to_api_small_big(i)
-                            #like = self.like(self.media_by_tag[i]['node']['id'])
+                            like = self.like(self.media_by_tag[i]['node']['id'])
                             # comment = self.comment(self.media_by_tag[i]['id'], 'Cool!')
                             # follow = self.follow(self.media_by_tag[i]["owner"]["id"])
                             if like != 0:
@@ -617,7 +618,6 @@ class InstaBot:
             img = Image.open(BytesIO(response.content)).convert('RGB')
             rgbhsl = img_rgbhsl_rep(img)
 
-            print(rgbhsl)
 
             small_big_info = {
                 "photo_id": self.media_by_tag[i]['node']['id'],
@@ -636,8 +636,7 @@ class InstaBot:
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
-            print(small_big_info)
-            r = requests.post('http://localhost:5000/photo', data=small_big_info, headers=headers)
+            r = requests.post('https://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
         except:
             raise
             #logging.exception("Except on small/big!")
@@ -1105,7 +1104,6 @@ class InstaBot:
         #         file = open(f'locales_from_rio/{file_name}.txt', 'w')
         #         break
 
-        print('Limite_Bairro')
         file_name = 'src/location_bot/Limite_Bairro'
         start_row = 1
         column = 1

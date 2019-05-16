@@ -54,7 +54,7 @@ location_ids = [{'location_id': '1280110728803296', 'name': 'Paquetá, Rio de Ja
 {'location_id': '235004466', 'name': 'Ramos, Rio de Janeiro, Brasil'},
 {'location_id': '227478062', 'name': 'Realengo, Rio de Janeiro, Brasil'},]
 
-
+#['l:'+id['location_id'] for id in location_ids][::-2]
 if __name__ == '__main__':
 
     tata_bot = InstaBot(
@@ -62,9 +62,9 @@ if __name__ == '__main__':
         password=os.environ.get('PASSWORD', ''),
         like_per_day=1400,
         comments_per_day=0,
-        tag_list=['l:' + id['location_id'] for id in location_ids][::-2],
+        tag_list=['l:254797785', 'l:252597791', 'l:225482860', 'l:483000553', 'l:765218015', 'l:242188913', 'l:528940167438731', 'l:238378247', 'l:9305055', 'l:360450246', 'l:730930953', 'l:448635482', 'l:438727761', 'l:348768611', 'l:226176840', 'l:390808506', 'l:455267868', 'l:659517962', 'l:213288134', 'l:587826037', 'l:219570726', 'l:219654823'],
         user_blacklist={},
-        max_like_for_one_tag=250,
+        max_like_for_one_tag=50,
         follow_per_day=0,
         follow_time=1 * 60,
         unfollow_per_day=0,
