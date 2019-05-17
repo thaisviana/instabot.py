@@ -1,13 +1,13 @@
-from __future__ import print_function
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from PIL import Image
-from src.extract_color.get_color import img_rgbhsl_rep
+
+from __future__ import print_function
 
 import os
 
 from selenium.webdriver.common.keys import Keys
-from io import BytesIO
+
+from .hashtag.extract_hashtag import *
 from src.location_bot.format_csv_bot import format_csv
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
@@ -397,7 +397,6 @@ class InstaBot:
                         self.media_by_tag = list(all_data['graphql']['hashtag']['edge_hashtag_to_media']['edges'])
                     except:
                         self.media_by_tag = []
-                        raise
                         self.write_log("Except on get_media!")
                         logging.exception("get_media_id_by_tag")
                 else:
@@ -542,7 +541,7 @@ class InstaBot:
                                          (self.media_by_tag[i]['node']['id'])
                             self.write_log(log_string)
                             like = self.add_to_api_small_big(i)
-                            like = self.like(self.media_by_tag[i]['node']['id'])
+                            #like = self.like(self.media_by_tag[i]['node']['id'])
                             # comment = self.comment(self.media_by_tag[i]['id'], 'Cool!')
                             # follow = self.follow(self.media_by_tag[i]["owner"]["id"])
                             if like != 0:
@@ -551,7 +550,7 @@ class InstaBot:
                                     self.error_400 = 0
                                     self.like_counter += 1
                                     short = self.get_instagram_url_from_media_id(self.media_by_tag[i]['node']['id'])
-                                    log_string = "Liked: %s. Like #%i." % \
+                                    log_string = "Added: %s. Add #%i." % \
                                                  (short,
                                                   self.like_counter)
                                     insert_media(self,
@@ -559,7 +558,7 @@ class InstaBot:
                                                  status="200")
                                     self.write_log(log_string)
                                 elif like.status_code == 400:
-                                    log_string = "Not liked: %i" \
+                                    log_string = "Not Added: %i" \
                                                  % (like.status_code)
                                     self.write_log(log_string)
                                     insert_media(self,
@@ -612,13 +611,6 @@ class InstaBot:
         try:
             text = self.media_by_tag[i]['node']['edge_media_to_caption']['edges'][0]['node']['text'] \
                 if self.media_by_tag[i]['node']['edge_media_to_caption']['edges'] else ""
-
-            image_url = self.media_by_tag[i]['node']['display_url']
-            response = requests.get(image_url)
-            img = Image.open(BytesIO(response.content)).convert('RGB')
-            rgbhsl = img_rgbhsl_rep(img)
-
-
             small_big_info = {
                 "photo_id": self.media_by_tag[i]['node']['id'],
                 "shortcode": self.media_by_tag[i]['node']['shortcode'],
@@ -627,20 +619,16 @@ class InstaBot:
                 "text": text,
                 "taken_at_timestamp": self.media_by_tag[i]['node']['taken_at_timestamp'],
                 "count_liked_by": self.media_by_tag[i]['node']['edge_liked_by']['count'],
-                "red": rgbhsl.r,
-                "green": rgbhsl.g,
-                "blue": rgbhsl.b,
-                "hue": rgbhsl.h,
-                "saturation": rgbhsl.s,
-                "lightness": rgbhsl.l,
+                "hashtag": get_hashtag(text)
+
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
-            r = requests.post('https://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
+            r = requests.post('small-big-api.herokuapp.com/photo/', data=small_big_info, headers=headers)
+            # r = requests.post('http://127.0.0.1:5000/photo', data=small_big_info, headers=headers)
         except:
-            raise
-            #logging.exception("Except on small/big!")
-            #r = 0
+            logging.exception("Except on small/big!")
+            r = 0
         return r
 
 
@@ -754,10 +742,15 @@ class InstaBot:
     def new_auto_mod(self):
         while True:
             now = datetime.datetime.now()
-            if (
-                    datetime.time(self.start_at_h, self.start_at_m) <= now.time()
-                    and now.time() <= datetime.time(self.end_at_h, self.end_at_m)
-            ):
+            # distance between start time and now
+            dns = self.time_dist(datetime.time(self.start_at_h,
+                                               self.start_at_m),
+                                 now.time())
+            # distance between end time and now
+            dne = self.time_dist(datetime.time(self.end_at_h,
+                                               self.end_at_m),
+                                 now.time())
+            if (dns == 0 or dne < dns) and dne != 0:
                 # ------------------- Get media_id -------------------
                 if len(self.media_by_tag) == 0:
                     self.get_media_id_by_tag(random.choice(self.tag_list))
@@ -901,12 +894,11 @@ class InstaBot:
                 log_string = "api limit reached from instagram. Will try later"
                 self.write_log(log_string)
                 return False
-            for wluser in self.unfollow_whitelist:
-                if wluser == current_user:
-                    log_string = (
-                        "found whitelist user, starting search again")
-                    self.write_log(log_string)
-                    break
+            if current_user in self.unfollow_whitelist:
+                log_string = "found whitelist user, not unfollowing"
+                # problem, if just one user in unfollowlist -> might create inf. loop. therefore just skip round
+                self.write_log(log_string)
+                return False
             else:
                 checking = False
 
@@ -1057,81 +1049,3 @@ class InstaBot:
                 self.logger.info(log_text)
             except UnicodeEncodeError:
                 print("Your text has unicode problem!")
-
-    # TODO: to move it to other file.
-    def locations(self):
-        self.write_log('Starting location bot...')
-
-        # Check if the directory exist, else it'll create the folder.
-        if not os.path.exists('locales_from_rio'):
-            self.write_log('Creating locales_from_rio folder')
-            os.makedirs('locales_from_rio')
-
-        # Webdriver
-        driver = webdriver.Firefox()
-        driver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
-        self.write_log('Location Bot is trying login...')
-        while True:
-            try:
-                login_form = driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
-                password_form = driver.find_element_by_xpath("//input[@aria-label='Password']")
-                break
-            except:
-                pass
-
-        # Trying to sign in on Instagram
-        try:
-            login_form.send_keys(self.user_login)
-            password_form.send_keys(self.user_password)
-            driver.find_element_by_class_name('_0mzm-.sqdOP.L3NKy').click()
-            self.write_log('Location Bot login success!')
-        except:
-            self.write_log('ERROR: Login or Password is invalid! Exiting bot..')
-            return False
-
-        # All times that the Firefox open and the bot sign in the Instagram
-        # it'll ask if you want to turn on the notifications.
-        while True:
-            try:
-                driver.find_element_by_class_name('aOOlW.HoLwm').click()
-                break
-            except:
-                pass
-
-        # while True:
-        #     file_name = 'rio_instagram'
-        #     if not os.path.exists(f'./locales_from_rio/{file_name}.txt'):
-        #         file = open(f'locales_from_rio/{file_name}.txt', 'w')
-        #         break
-
-        file_name = 'src/location_bot/Limite_Bairro'
-        start_row = 1
-        column = 1
-        city = 'Rio de Janeiro'
-        country = 'Brasil'
-        locations_list = format_csv(f'./{file_name}.csv', start_row, column, city, country)
-        instagram_locations_ids = []
-
-        for location in locations_list:
-            if 'https://www.instagram.com/' == driver.current_url:
-                search_field = driver.find_element_by_class_name('XTCLo.x3qfX')
-                search_field.send_keys(location)
-                while 'https://www.instagram.com/' == driver.current_url:
-                    search_field.send_keys(Keys.RETURN)
-
-            url = driver.current_url
-            url = url.split('/')
-            location_id = url[5]
-
-            driver.get('https://www.instagram.com/')
-            instagram_locations_ids.append({'location_id': location_id,'name': location})
-            print({'location_id': location_id, 'name': location})
-
-
-
-
-
-
-
-
-
