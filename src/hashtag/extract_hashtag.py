@@ -6,6 +6,7 @@ import requests
 
 path = 'small-big-api.herokuapp.com/photo/'
 
+
 def add_hashtag(shortcode, hashtag):
     try:
         data = {
@@ -30,7 +31,7 @@ def update_all_hashtag():
     response = requests.get(path, stream=False)
     result = response.json()
     for small_big in result['result']:
-        time.sleep(10)
+        time.sleep(5)
         try:
             text = small_big['text']
             add_hashtag(small_big['shortcode'], get_hashtag(text))

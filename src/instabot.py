@@ -7,7 +7,7 @@ import os
 
 from selenium.webdriver.common.keys import Keys
 
-from hashtag import extract_hashtag
+from .hashtag.extract_hashtag import *
 from src.location_bot.format_csv_bot import format_csv
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
@@ -619,12 +619,13 @@ class InstaBot:
                 "text": text,
                 "taken_at_timestamp": self.media_by_tag[i]['node']['taken_at_timestamp'],
                 "count_liked_by": self.media_by_tag[i]['node']['edge_liked_by']['count'],
-                "hashtag": extract_hashtag.get_hashtag(text)
+                "hashtag": get_hashtag(text)
 
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
-            r = requests.post('http://127.0.0.1:5000//photo', data=small_big_info, headers=headers)
+            r = requests.post('http://small-big-api.herokuapp.com/photo/', data=small_big_info, headers=headers)
+            # r = requests.post('http://127.0.0.1:5000/photo', data=small_big_info, headers=headers)
         except:
             logging.exception("Except on small/big!")
             r = 0
