@@ -624,7 +624,7 @@ class InstaBot:
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
-            r = requests.post('http://small-big-api.herokuapp.com/photo/', data=small_big_info, headers=headers)
+            r = requests.post('http://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
             # r = requests.post('http://127.0.0.1:5000/photo', data=small_big_info, headers=headers)
         except:
             logging.exception("Except on small/big!")

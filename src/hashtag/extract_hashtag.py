@@ -4,7 +4,7 @@ import time
 
 import requests
 
-path = 'small-big-api.herokuapp.com/photo/'
+path = 'https://small-big-api.herokuapp.com/photo'
 
 
 def add_hashtag(shortcode, hashtag):
