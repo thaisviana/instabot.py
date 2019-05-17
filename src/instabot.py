@@ -541,7 +541,7 @@ class InstaBot:
                                          (self.media_by_tag[i]['node']['id'])
                             self.write_log(log_string)
                             like = self.add_to_api_small_big(i)
-                            #like = self.like(self.media_by_tag[i]['node']['id'])
+                            like = self.like(self.media_by_tag[i]['node']['id'])
                             # comment = self.comment(self.media_by_tag[i]['id'], 'Cool!')
                             # follow = self.follow(self.media_by_tag[i]["owner"]["id"])
                             if like != 0:
@@ -624,7 +624,7 @@ class InstaBot:
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
-            r = requests.post('small-big-api.herokuapp.com/photo/', data=small_big_info, headers=headers)
+            r = requests.post('http://small-big-api.herokuapp.com/photo/', data=small_big_info, headers=headers)
             # r = requests.post('http://127.0.0.1:5000/photo', data=small_big_info, headers=headers)
         except:
             logging.exception("Except on small/big!")
