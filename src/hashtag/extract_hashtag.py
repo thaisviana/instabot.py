@@ -15,7 +15,7 @@ def add_hashtag(shortcode, hashtag):
         }
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         data = json.dumps(data)
-        r = requests.patch('small-big-api.herokuapp.com/photo/' + shortcode, data=data, headers=headers)
+        r = requests.patch(path + '/' + shortcode, data=data, headers=headers)
     except:
         r = 0
     print(shortcode, r)
