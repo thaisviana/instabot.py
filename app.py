@@ -86,7 +86,35 @@ location_ids = [
 {'location_id': '229165580', 'name': 'Urca, Rio de Janeiro, Brazil'},
 {'location_id': '317148057', 'name': 'Cidade de Deus, Rio de Janeiro, Brazil'},
 {'location_id': '240377209', 'name': 'Sepetiba, Rio de Janeiro, Brazil'},
-{'location_id': '214220409', 'name': 'Anil, Rio de Janeiro, Brazil'},]
+{'location_id': '214220409', 'name': 'Anil, Rio de Janeiro, Brazil'},
+
+{'location_id': '517640870', 'name': 'Silimed Indústria De Implantes Ltda'},
+{'location_id': '34290443967423', 'name': 'Puraí Beer'},
+{'location_id': '159462000', 'name': 'Centro Comercial Mancini'},
+{'location_id': '1904441953109703', 'name': 'Igreja São Sebastião, Cocotá, Ilha Do Governador'},
+{'location_id': '312210312458705', 'name': 'Areninha Carioca Renato Russo'},
+{'location_id': '168701059920218', 'name': 'Camila Souza "Designer em Unhas"'},
+{'location_id': '401103991', 'name': 'Praia Da Bandeira No Aterro Do Cocota Na Ilha Do Governador'},
+{'location_id': '1995171180717995', 'name': 'Comunidade Evangélica Betel'},
+{'location_id': '1734148373480231', 'name': 'Ferinha Do Cocota'},
+{'location_id': '159974610s', 'name': 'Johrei Center Cocotá'},
+{'location_id': '370780336', 'name': 'Igreja Presbiteriana da Ilha do Governador - IPIG'},
+{'location_id': '630065870', 'name': 'São Sebastião Ilha do Governador'},
+{'location_id': '235973324', 'name': 'Adoleta Casa de Festas'},
+{'location_id': '266231715', 'name': 'UPA 24 horas - Ilha do Governador'},
+{'location_id': '1297578730311880', 'name': 'Curso Progressão Ilha'},
+{'location_id': '1241674725846682', 'name': 'Oab Ilha Do Governador'},
+{'location_id': '301635124', 'name': 'Feira Mix Cocotá'},
+{'location_id': '445981589111713', 'name': 'Comunidade Internacional Transformar'},
+{'location_id': '1392255181082043', 'name': 'Fortaleza Cursos Ilha do Governador'},
+{'location_id': '1021583005', 'name': 'Bar Léo&Noelma'},
+{'location_id': '344711976', 'name': 'ProQuality Cocotá'},
+{'location_id': '270031994', 'name': 'Detran Cocotá (Ilha do Governador)'},
+{'location_id': '216932056', 'name': 'Terminal de Barcas do Cocotá - Ilha do Governador'},
+{'location_id': '746972808783969', 'name': 'Esporte Clube Cocotá'},
+{'location_id': '212970667', 'name': 'Cocotá - Ilha Do Governador'},
+#{'location_id': '', 'name': ''}
+]
 
 if __name__ == '__main__':
 

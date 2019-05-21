@@ -1,6 +1,7 @@
-import os
+import time
 import requests
 import json
+
 
 def update_to_api_small_big(shortcode, timestamp):
     try:
@@ -16,10 +17,13 @@ def update_to_api_small_big(shortcode, timestamp):
     print(shortcode, r)
     return r
 
+
 path = 'https://small-big-api.herokuapp.com/photo'
 response = requests.get(path, stream=False)
 result = response.json()
+
 for small_big in result['result']:
+    time.sleep(5)
     if not 'taken_at_timestamp' in small_big:
         url = f'https://instagram.com/p/{small_big["shortcode"]}/?__a=1'
         r = requests.get(url, stream=False)
