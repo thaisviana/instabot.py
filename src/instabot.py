@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from __future__ import print_function
 
 import os
-
 from selenium.webdriver.common.keys import Keys
-
+from io import BytesIO
 from .hashtag.extract_hashtag import *
 from src.location_bot.format_csv_bot import format_csv
 from .unfollow_protocol import unfollow_protocol
@@ -31,6 +29,8 @@ from .sql_updates import check_and_insert_user_agent
 from fake_useragent import UserAgent
 import re
 from selenium import webdriver
+from PIL import Image
+from src.extract_color.get_color import img_rgbhsl_rep
 
 class InstaBot:
     """
@@ -611,6 +611,12 @@ class InstaBot:
         try:
             text = self.media_by_tag[i]['node']['edge_media_to_caption']['edges'][0]['node']['text'] \
                 if self.media_by_tag[i]['node']['edge_media_to_caption']['edges'] else ""
+
+            image_url = self.media_by_tag[i]['node']['display_url']
+            response = requests.get(image_url)
+            img = Image.open(BytesIO(response.content)).convert('RGB')
+            rgbhsl = img_rgbhsl_rep(img)
+
             small_big_info = {
                 "photo_id": self.media_by_tag[i]['node']['id'],
                 "shortcode": self.media_by_tag[i]['node']['shortcode'],
@@ -619,16 +625,20 @@ class InstaBot:
                 "text": text,
                 "taken_at_timestamp": self.media_by_tag[i]['node']['taken_at_timestamp'],
                 "count_liked_by": self.media_by_tag[i]['node']['edge_liked_by']['count'],
+                "red": rgbhsl.r,
+                "green": rgbhsl.g,
+                "blue": rgbhsl.b,
+                "hue": rgbhsl.h,
+                "saturation": rgbhsl.s,
+                "lightness": rgbhsl.l,
                 "hashtag": get_hashtag(text)
-
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
             r = requests.post('http://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
             # r = requests.post('http://127.0.0.1:5000/photo', data=small_big_info, headers=headers)
         except:
-            logging.exception("Except on small/big!")
-            r = 0
+            raise
         return r
 
 

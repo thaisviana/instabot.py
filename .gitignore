@@ -106,5 +106,6 @@ geckodriver.log
 imgs
 
 # Testers
+app0.py
 app1.py
 app2.py

@@ -2,119 +2,15 @@
 # -*- coding: utf-8 -*-
 import os
 import dotenv
+from src.location_bot.location_id import get_location_ids
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 from src import InstaBot
 
-location_ids = [
-{'location_id': '119999494746573', 'name': 'Paquetá, Rio de Janeiro, Brazil'},
-{'location_id': '324148104', 'name': 'Galeão, Rio de Janeiro, Brazil'},
-{'location_id': '370287903', 'name': 'Vila Kosmos, Rio de Janeiro, Brazil'},
-{'location_id': '619566582', 'name': 'Vila Cosmos, Rio de Janeiro, Brazil'},
-{'location_id': '213588142', 'name': 'Marechal Hermes, Rio de Janeiro, Brazil'},
-{'location_id': '217589180', 'name': 'Vicente de Carvalho, Rio de Janeiro, Brazil'},
-{'location_id': '370706375', 'name': 'Paciência, Rio de Janeiro, Brazil'},
-{'location_id': '235061786', 'name': 'Engenho Da Rainha, Rio de Janeiro, Brazil'},
-{'location_id': '474725268', 'name': 'Complexo do Alemão, Rio de Janeiro, Brazil'},
-{'location_id': '243454557', 'name': 'Vaz Lobo, Rio de Janeiro, Brazil'},
-{'location_id': '215789899', 'name': 'Padre Miguel, Rio de Janeiro, Brazil'},
-{'location_id': '505018022', 'name': 'Bento Ribeiro, Rio de Janeiro, Brazil'},
-{'location_id': '20737678', 'name': 'Turiaçu, Rio de Janeiro, Brazil'},
-{'location_id': '225443570', 'name': 'Boncucesso, Rio de Janeiro, Brazil'},
-{'location_id': '219393343', 'name': 'Boncucesso, Rio de Janeiro, Brazil'},
-{'location_id': '297966939', 'name': 'Inhaúma, Rio de Janeiro, Brazil'},
-{'location_id': '237512663', 'name': 'Tomás Coelho, Rio de Janeiro, Brazil'},
-{'location_id': '297966939', 'name': 'Inhaúma, Rio de Janeiro, Brazil'},
-{'location_id': '237512663', 'name': 'Tomás Coelho, Rio de Janeiro, Brazil'},
-{'location_id': '244305931', 'name': 'Santíssimo, Rio de Janeiro, Brazil'},
-{'location_id': '223589801', 'name': 'Madureira, Rio de Janeiro, Brazil'},
-{'location_id': '644923990', 'name': 'Oswaldo Cruz, Rio de Janeiro, Brazil'},
-{'location_id': '213340181', 'name': 'Santa Cruz, Rio de Janeiro, Brazil'},
-{'location_id': '235203259', 'name': 'Magalhães Bastos, Rio de Janeiro, Brazil'},
-{'location_id': '220783438', 'name': 'Senador Camará, Rio de Janeiro, Brazil'},
-{'location_id': '317349667', 'name': 'Cavalcanti, Rio de Janeiro, Brazil'},
-{'location_id': '235219908', 'name': 'Campo dos Afonsos, Rio de Janeiro, Brazil'},
-{'location_id': '271772743', 'name': 'Campo dos Afonsos, Rio de Janeiro, Brazil'},
-{'location_id': '228857941', 'name': 'Higienópolis, Rio de Janeiro, Brazil'},
-{'location_id': '6958763', 'name': 'Higienópolis, Rio de Janeiro, Brazil'},
-{'location_id': '254896886', 'name': 'Manguinhos, Rio de Janeiro, Brazil'},
-{'location_id': '13886195', 'name': 'Engenheiro Leal, Rio de Janeiro, Brazil'},
-{'location_id': '229508750', 'name': 'Pilares, Rio de Janeiro, Brazil'},
-{'location_id': '229364788', 'name': 'Del Castilho, Rio de Janeiro, Brazil'},
-{'location_id': '513138999', 'name': 'Piedade, Rio de Janeiro, Brazil'},
-{'location_id': '218955154', 'name': 'Cascadura, Rio de Janeiro, Brazil'},
-{'location_id': '215659485', 'name': 'Vila Valqueire, Rio de Janeiro, Brazil'},
-{'location_id': '224849782', 'name': 'Maria da Graça, Rio de Janeiro, Brazil'},
-{'location_id': '242047776', 'name': 'Quintino Bocaiúva, Rio de Janeiro, Brazil'},
-{'location_id': '498626754', 'name': 'Jardim Sulacap, Rio de Janeiro, Brazil'},
-{'location_id': '215799724', 'name': 'Jardim Sulacap, Rio de Janeiro, Brazil'},
-{'location_id': '250651732', 'name': 'Campinho, Rio de Janeiro, Brazil'},
-{'location_id': '447075808', 'name': 'Abolição, Rio de Janeiro, Brazil'},
-{'location_id': '235134557', 'name': 'Senador Vasconcelos, Rio de Janeiro, Brazil'},
-{'location_id': '214704422', 'name': 'Cosmos, Rio de Janeiro, Brazil'},
-{'location_id': '372952224', 'name': 'Jacarezinho, Rio de Janeiro, Brazil'},
-{'location_id': '237956912', 'name': 'Cachambi, Rio de Janeiro, Brazil'},
-{'location_id': '219626708', 'name': 'Praça Seca, Rio de Janeiro, Brazil'},
-{'location_id': '327146338', 'name': 'Benfica, Rio de Janeiro, Brazil'},
-{'location_id': '621830528237318', 'name': 'Engenho de Dentro, Rio de Janeiro, Brazil'},
-{'location_id': '749841000', 'name': 'Imperial de São Cristovão, Rio de Janeiro, Brazil'},
-{'location_id': '609573734', 'name': 'Vasco da Gama, Rio de Janeiro, Brazil'},
-{'location_id': '244097158', 'name': 'Inhoaíba, Rio de Janeiro, Brazil'},
-{'location_id': '248703424', 'name': 'Todos os Santos, Rio de Janeiro, Brazil'},
-{'location_id': '221313789', 'name': 'Jacaré, Rio de Janeiro, Brazil'},
-{'location_id': '234599175', 'name': 'Encantado, Rio de Janeiro, Brazil'},
-{'location_id': '753897135', 'name': 'Rocha, Rio de Janeiro, Brazil'},
-{'location_id': '216348954', 'name': 'Méier, Rio de Janeiro, Brazil'},
-{'location_id': '505870750', 'name': 'Gamboa, Rio de Janeiro, Brazil'},
-{'location_id': '240419404', 'name': 'Santo Cristo, Rio de Janeiro, Brazil'},
-{'location_id': '731003687', 'name': 'Centro, Rio de Janeiro, Brazil'},
-{'location_id': '261277779', 'name': 'Sampaio, Rio de Janeiro, Brazil'},
-{'location_id': '238414735', 'name': 'Riachuelo, Rio de Janeiro, Brazil'},
-
-{'location_id': '238512597', 'name': 'Andaraí, Rio de Janeiro, Brazil'},
-{'location_id': '238123296', 'name': 'Catete, Rio de Janeiro, Brazil'},
-{'location_id': '224254831', 'name': 'Flamengo, Rio de Janeiro, Brazil'},
-{'location_id': '1863813143871730', 'name': 'Laranjeiras, Rio de Janeiro, Brazil'},
-{'location_id': '254693080', 'name': 'Guaratiba, Rio de Janeiro, Brazil'},
-{'location_id': '257453801', 'name': 'Vargem Grande, Rio de Janeiro, Brazil'},
-{'location_id': '214993240', 'name': 'Alto da Boa Vista, Rio de Janeiro, Brazil'},
-{'location_id': '219637024', 'name': 'Cosme Velho, Rio de Janeiro, Brazil'},
-{'location_id': '229688043', 'name': 'Curicica, Rio de Janeiro, Brazil'},
-{'location_id': '213396483', 'name': 'Botafogo, Rio de Janeiro, Brazil'},
-{'location_id': '229165580', 'name': 'Urca, Rio de Janeiro, Brazil'},
-{'location_id': '317148057', 'name': 'Cidade de Deus, Rio de Janeiro, Brazil'},
-{'location_id': '240377209', 'name': 'Sepetiba, Rio de Janeiro, Brazil'},
-{'location_id': '214220409', 'name': 'Anil, Rio de Janeiro, Brazil'},
-
-{'location_id': '517640870', 'name': 'Silimed Indústria De Implantes Ltda'},
-{'location_id': '34290443967423', 'name': 'Puraí Beer'},
-{'location_id': '159462000', 'name': 'Centro Comercial Mancini'},
-{'location_id': '1904441953109703', 'name': 'Igreja São Sebastião, Cocotá, Ilha Do Governador'},
-{'location_id': '312210312458705', 'name': 'Areninha Carioca Renato Russo'},
-{'location_id': '168701059920218', 'name': 'Camila Souza "Designer em Unhas"'},
-{'location_id': '401103991', 'name': 'Praia Da Bandeira No Aterro Do Cocota Na Ilha Do Governador'},
-{'location_id': '1995171180717995', 'name': 'Comunidade Evangélica Betel'},
-{'location_id': '1734148373480231', 'name': 'Ferinha Do Cocota'},
-{'location_id': '159974610s', 'name': 'Johrei Center Cocotá'},
-{'location_id': '370780336', 'name': 'Igreja Presbiteriana da Ilha do Governador - IPIG'},
-{'location_id': '630065870', 'name': 'São Sebastião Ilha do Governador'},
-{'location_id': '235973324', 'name': 'Adoleta Casa de Festas'},
-{'location_id': '266231715', 'name': 'UPA 24 horas - Ilha do Governador'},
-{'location_id': '1297578730311880', 'name': 'Curso Progressão Ilha'},
-{'location_id': '1241674725846682', 'name': 'Oab Ilha Do Governador'},
-{'location_id': '301635124', 'name': 'Feira Mix Cocotá'},
-{'location_id': '445981589111713', 'name': 'Comunidade Internacional Transformar'},
-{'location_id': '1392255181082043', 'name': 'Fortaleza Cursos Ilha do Governador'},
-{'location_id': '1021583005', 'name': 'Bar Léo&Noelma'},
-{'location_id': '344711976', 'name': 'ProQuality Cocotá'},
-{'location_id': '270031994', 'name': 'Detran Cocotá (Ilha do Governador)'},
-{'location_id': '216932056', 'name': 'Terminal de Barcas do Cocotá - Ilha do Governador'},
-{'location_id': '746972808783969', 'name': 'Esporte Clube Cocotá'},
-{'location_id': '212970667', 'name': 'Cocotá - Ilha Do Governador'},
-#{'location_id': '', 'name': ''}
-]
+location_ids = get_location_ids('João Pedro')
 
 if __name__ == '__main__':
 
@@ -158,8 +54,6 @@ if __name__ == '__main__':
             'follow', 'follower', 'gain', '.id', '_id', 'bags'
         ],
         unfollow_whitelist=['example_user_1', 'example_user_2'])
-
-    # bot.locations()
 
     while True:
 

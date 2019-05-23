@@ -24,12 +24,13 @@ result = response.json()
 
 for small_big in result['result']:
     time.sleep(5)
-    if not 'taken_at_timestamp' in small_big:
+    if not 'taken_at_timestamp' in small_big or 'none' in small_big:
         url = f'https://instagram.com/p/{small_big["shortcode"]}/?__a=1'
         r = requests.get(url, stream=False)
         try:
             result1 = r.json()
             timestamp = result1['graphql']['shortcode_media']['taken_at_timestamp']
+            print(f'{small_big["shortcode"]}, timestamp: {timestamp}')
             update_to_api_small_big(small_big['shortcode'], timestamp)
         except:
             print(f"Warning: image: {small_big['shortcode']}. This page isn't available.")

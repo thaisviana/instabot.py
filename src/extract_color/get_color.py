@@ -44,7 +44,7 @@ def img_rgbhsl_rep(img):
 
 
 # 'src/extract_color/imgs'
-for image in os.listdir('imgs'):
+for image in os.listdir('src/extract_color/imgs'):
     time.sleep(5)
     HUE, R, G, B = [], [], [], []
     response = requests.get(path + image, stream=False)
