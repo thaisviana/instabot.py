@@ -1,16 +1,17 @@
 import csv
-import json
+
 
 def get_location_ids(name):
   name = name.upper()
+  # src/location_bot/Locations and Hashtags  - Hashtags.csv
   with open('src/location_bot/Locations and Hashtags  - Hashtags.csv', 'r', encoding="utf-8") as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     location_filtered = list([l for l in csv_reader if name in l])
-    format = list(map(lambda obj: {'location_id': obj[1], 'name': obj[0]}, location_filtered))
+    format = list(map(lambda obj: {'location_id': 'l:'+obj[1], 'name': obj[0]}, location_filtered))
 
     return format
 
-
+#get_location_ids('izabella')
 # João Pedro
 
 # {'location_id': '119999494746573', 'name': 'Paquetá, Rio de Janeiro, Brazil'},

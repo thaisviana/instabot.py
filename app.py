@@ -19,7 +19,7 @@ if __name__ == '__main__':
         password=os.environ.get('PASSWORD', ''),
         like_per_day=1400,
         comments_per_day=0,
-        tag_list=['l:' + id['location_id'] for id in location_ids][::-2],
+        tag_list=[id['location_id'] for id in location_ids][::-2],
         user_blacklist={},
         max_like_for_one_tag=50,
         follow_per_day=0,

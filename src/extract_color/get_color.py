@@ -6,7 +6,7 @@ import requests
 import json
 from collections import namedtuple
 
-path = 'https://small-big-api.herokuapp.com/photo/'
+path = 'https://small-big-api.herokuapp.com/photos/'
 
 
 def add_colors(shortcode, rgbhsl):
@@ -44,16 +44,16 @@ def img_rgbhsl_rep(img):
 
 
 # 'src/extract_color/imgs'
-for image in os.listdir('src/extract_color/imgs'):
-    time.sleep(5)
-    HUE, R, G, B = [], [], [], []
-    response = requests.get(path + image, stream=False)
-    result = response.json()
-    if not 'red' in result and not 'green' in result and not'blue' in result:
-        if image.endswith('.jpg'):
-            try:
-                img = Image.open(f'imgs/{image}').convert('RGB')
-                rgbhsl = img_rgbhsl_rep(img)
-                add_colors(image.replace('.jpg', ''), rgbhsl)
-            except OSError:
-                pass
+# for image in os.listdir('src/extract_color/imgs'):
+#     time.sleep(5)
+#     HUE, R, G, B = [], [], [], []
+#     response = requests.get(path + image, stream=False)
+#     result = response.json()
+#     if not 'red' in result and not 'green' in result and not'blue' in result:
+#         if image.endswith('.jpg'):
+#             try:
+#                 img = Image.open(f'imgs/{image}').convert('RGB')
+#                 rgbhsl = img_rgbhsl_rep(img)
+#                 add_colors(image.replace('.jpg', ''), rgbhsl)
+#             except OSError:
+#                 pass
