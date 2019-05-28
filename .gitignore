@@ -113,3 +113,7 @@ app2.py
 # Locations
 Locations and Hashtags  - Bairros.csv
 Locations and Hashtags  - Hashtags.csv
+
+# Google API
+client_secret.json
+

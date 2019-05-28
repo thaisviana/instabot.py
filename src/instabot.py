@@ -2,11 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-import os
-from selenium.webdriver.common.keys import Keys
 from io import BytesIO
 from .hashtag.extract_hashtag import *
-from src.location_bot.format_csv_bot import format_csv
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
 import atexit
@@ -28,9 +25,9 @@ from .sql_updates import get_username_random, get_username_to_unfollow_random
 from .sql_updates import check_and_insert_user_agent
 from fake_useragent import UserAgent
 import re
-from selenium import webdriver
 from PIL import Image
 from src.extract_color.get_color import img_rgbhsl_rep
+
 
 class InstaBot:
     """
@@ -489,14 +486,12 @@ class InstaBot:
                         if True:
                             for blacklisted_user_name, blacklisted_user_id in self.user_blacklist.items(
                             ):
-                                if self.media_by_tag[i]['node']['owner'][
-                                    'id'] == blacklisted_user_id:
+                                if self.media_by_tag[i]['node']['owner']['id'] == blacklisted_user_id:
                                     self.write_log(
                                         "Not liking media owned by blacklisted user: "
                                         + blacklisted_user_name)
                                     return False
-                            if self.media_by_tag[i]['node']['owner'][
-                                'id'] == self.user_id:
+                            if self.media_by_tag[i]['node']['owner']['id'] == self.user_id:
                                 self.write_log(
                                     "Keep calm - It's your own media ;)")
                                 return False
@@ -504,7 +499,7 @@ class InstaBot:
                                 self.write_log("Keep calm - It's already liked ;)")
                                 return False
                             try:
-                                if (len(self.media_by_tag[i]['node']['edge_media_to_caption']['edges']) > 1):
+                                if len(self.media_by_tag[i]['node']['edge_media_to_caption']['edges']) > 1:
                                     caption = self.media_by_tag[i]['node']['edge_media_to_caption'][
                                         'edges'][0]['node']['text'].encode(
                                         'ascii', errors='ignore')
@@ -537,7 +532,7 @@ class InstaBot:
                                 logging.exception("Except on like_all_exist_media")
                                 return False
 
-                            log_string = "Trying to like media: %s" % \
+                            log_string = "Trying to add media: %s" % \
                                          (self.media_by_tag[i]['node']['id'])
                             self.write_log(log_string)
                             like = self.add_to_api_small_big(i)
@@ -598,7 +593,7 @@ class InstaBot:
     def like(self, media_id):
         """ Send http request to like media by ID """
         if self.login_status:
-            url_likes = self.url_likes % (media_id)
+            url_likes = self.url_likes % media_id
             try:
                 like = self.s.post(url_likes)
                 last_liked_media_id = media_id
@@ -631,7 +626,9 @@ class InstaBot:
                 "hue": rgbhsl.h,
                 "saturation": rgbhsl.s,
                 "lightness": rgbhsl.l,
-                "hashtag": get_hashtag(text)
+                "hashtag": get_hashtag(text),
+                #"location": {"id": self.media_by_tag[i]['node']['location']['id'],
+                             #"name": self.media_by_tag[i]['node']['location']['name']}
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)
