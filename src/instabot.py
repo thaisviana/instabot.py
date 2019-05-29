@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 from io import BytesIO
+from src.location.extract_location import get_location
 from .hashtag.extract_hashtag import *
 from .unfollow_protocol import unfollow_protocol
 from .userinfo import UserInfo
@@ -627,8 +627,7 @@ class InstaBot:
                 "saturation": rgbhsl.s,
                 "lightness": rgbhsl.l,
                 "hashtag": get_hashtag(text),
-                #"location": {"id": self.media_by_tag[i]['node']['location']['id'],
-                             #"name": self.media_by_tag[i]['node']['location']['name']}
+                "location": get_location(self.media_by_tag[i]['node']['shortcode'])
             }
             headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
             small_big_info = json.dumps(small_big_info)

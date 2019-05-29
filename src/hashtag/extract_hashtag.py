@@ -1,7 +1,6 @@
 import json
 import re
 import time
-
 import requests
 
 path = 'https://small-big-api.herokuapp.com/photo'

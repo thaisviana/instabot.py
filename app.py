@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import dotenv
-from src.location.location_id import get_locations_id
+from src.location.extract_location import get_locations_id
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
