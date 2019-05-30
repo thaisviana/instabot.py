@@ -1,13 +1,13 @@
-import json
+from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 import requests
-from oauth2client.service_account import ServiceAccountCredentials
+import json
+import time
 
-
-url = 'http://127.0.0.1:5000/photo'
+url = 'https://small-big-api.herokuapp.com/photo'
 path = 'unprocessed'
 instagram_url = 'https://www.instagram.com/p/'
-
+headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 def add_location(shortcode, data):
     try:
@@ -15,7 +15,6 @@ def add_location(shortcode, data):
             'shortcode': shortcode,
             'location': data
         }
-        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         data = json.dumps(data)
         r = requests.patch(url + '/' + shortcode, data=data, headers=headers)
     except:
@@ -37,11 +36,13 @@ def update_all_location():
     response = requests.get(url + '/' + path, stream=False)
     result = response.json()
     for small_big in result['result']:
+        time.sleep(5)
         try:
             data = get_location(small_big['shortcode'])
             add_location(small_big['shortcode'], data)
         except:
-            print(f"Warning: image: {small_big['shortcode']} can not updated.")
+            r = requests.delete(url + '/delete/' + small_big['shortcode'], headers=headers)
+            print(f"Warning: image: {small_big['shortcode']} can not updated. {r}")
 
 
 # Used by app.py

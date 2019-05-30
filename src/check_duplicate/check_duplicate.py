@@ -13,11 +13,9 @@ def delete_all_duplicate():
     shortcode_duplicated = list(set([x for x in list_shortcode if list_shortcode.count(x) > 1]))
 
     for shortcode in shortcode_duplicated:
-        #r = requests.get(path + '/delete/' + shortcode, headers=headers)
         r = requests.delete(path + '/delete/' + shortcode, headers=headers)
         print(f'{shortcode} was deleted! {r}')
     delete_all_duplicate()
-
 
 
 delete_all_duplicate()
