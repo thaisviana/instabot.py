@@ -42,6 +42,13 @@ class LocBot:
         # Find the login form
         while True:
             try:
+                self.driver.find_element_by_xpath("//option[@value='en']").click()
+                break
+            except:
+                pass
+
+        while True:
+            try:
                 username_form = self.driver.find_element_by_xpath("//input[@aria-label='Phone number, username, or email']")
                 password_form = self.driver.find_element_by_xpath("//input[@aria-label='Password']")
                 break
@@ -90,16 +97,22 @@ class LocBot:
     def search(self):
         locations = self.get_location()
 
-        teste = locations[0]
+        location = locations[0]
+
         if 'https://www.instagram.com/' == self.driver.current_url:
             search_form = self.driver.find_element_by_class_name('XTCLo.x3qfX')
-            search_form.send_keys(teste)
-            while 'https://www.instagram.com/' == self.driver.current_url:
-                search_form.send_keys(self.Keys.RETURN)
+            search_form.send_keys(location)
+            while True:
+                place_list = list(map(lambda l: l.get_attribute('href'), self.driver.find_elements_by_class_name('yCE8d  ')))
+
+            for place in place_list:
+                self.driver.get(place)
+
+            # while 'https://www.instagram.com/' == self.driver.current_url:
+            #     search_form.send_keys(self.Keys.RETURN)
 
 
 
-    #
     #     url = driver.current_url
     #     url = url.split('/')
     #     location_id = url[5]
