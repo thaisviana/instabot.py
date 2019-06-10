@@ -1,9 +1,13 @@
 import datetime
 import logging
 import os
+import time
+import json
 import dotenv
 import gspread
 import sys
+
+import requests
 from oauth2client.service_account import ServiceAccountCredentials
 from selenium import webdriver
 
@@ -27,6 +31,9 @@ class LocBot:
 
     ## Write_log
     log_mod = 0
+
+    ## City
+    city_name = 'Rio de Janeiro, Rio de Janeiro'
 
 
     def start(self):
@@ -102,22 +109,27 @@ class LocBot:
         if 'https://www.instagram.com/' == self.driver.current_url:
             search_form = self.driver.find_element_by_class_name('XTCLo.x3qfX')
             search_form.send_keys(location)
+            place_list = []
             while True:
-                place_list = list(map(lambda l: l.get_attribute('href'), self.driver.find_elements_by_class_name('yCE8d  ')))
+                time.sleep(1)
+                if not place_list:
+                    place_list = list(map(lambda l: l.get_attribute('href'), self.driver.find_elements_by_class_name('yCE8d  ')))
+                else:
+                    break
 
             for place in place_list:
                 self.driver.get(place)
+                location_name = self.driver.find_element_by_class_name('_7UhW9').text
+                photos_list = self.driver.find_elements_by_xpath("//a[contains(@href, 'p')]")
+                for photo in photos_list:
+                    response = requests.get(photo.get_attribute('href') + '?__a=1')
+                    result = response.json()
+                    photos_list_size = photos_list.count()
+                    address = json.loads(result['graphql']['shortcode_media']['location']['address_json'])
+                    # if self.city_name == address['city_name']:
+                    #     a = {'name': location, ''}
 
-            # while 'https://www.instagram.com/' == self.driver.current_url:
-            #     search_form.send_keys(self.Keys.RETURN)
 
-
-
-    #     url = driver.current_url
-    #     url = url.split('/')
-    #     location_id = url[5]
-    #
-    #     driver.get('https://www.instagram.com/')
 
     def write_log(self, log_text):
         """ Write log by print() or logger """
