@@ -30,7 +30,8 @@ def get_location(shortcode):
     insta_result = insta_response.json()
     id = insta_result['graphql']['shortcode_media']['location']['id']
     name = insta_result['graphql']['shortcode_media']['location']['name']
-    return {'id': id, 'name': name}
+    address_json = insta_result['graphql']['shortcode_media']['location']['address_json']
+    return {'id': id, 'name': name, 'address_json': address_json}
 
 
 def update_all_location():
