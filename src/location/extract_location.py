@@ -4,9 +4,11 @@ import requests
 import json
 import time
 
-url = 'https://small-big-api.herokuapp.com/photo'
+# url = 'https://small-big-api.herokuapp.com/photo'
+url = 'http://127.0.0.1:5000/photo'
 path = 'unprocessed'
 instagram_url = 'https://www.instagram.com/p/'
+url_postmon = 'http://api.postmon.com.br/v1/cep/'
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 
@@ -31,7 +33,18 @@ def get_location(shortcode):
     id = insta_result['graphql']['shortcode_media']['location']['id']
     name = insta_result['graphql']['shortcode_media']['location']['name']
     address_json = insta_result['graphql']['shortcode_media']['location']['address_json']
-    return {'id': id, 'name': name, 'address_json': address_json}
+    address = json.loads(address_json)
+    try:
+        response = requests.get(url_postmon + address['zip_code'], stream=False)
+        if not response.ok:
+            zone = None
+        else:
+            r = response.json()
+            zone = r['bairro']
+    except:
+        zone = None
+
+    return {'id': id, 'name': name, 'address_json': address_json, 'zone': zone}
 
 
 def update_all_location():
@@ -62,4 +75,4 @@ def get_locations_id(name):
     return format
 
 
-# update_all_location()
+update_all_location()
