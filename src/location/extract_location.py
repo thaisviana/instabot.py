@@ -37,12 +37,12 @@ def get_location(shortcode):
     try:
         response = requests.get(url_postmon + address['zip_code'], stream=False)
         if not response.ok:
-            zone = None
+            zone = 'None'
         else:
             r = response.json()
             zone = r['bairro']
     except:
-        zone = None
+        zone = 'None'
 
     return {'id': id, 'name': name, 'address_json': address_json, 'zone': zone}
 
