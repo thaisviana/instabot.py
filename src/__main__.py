@@ -9,10 +9,10 @@ import yaml
 from config42 import ConfigManager
 from config42.handlers import ArgParse
 
-import instabot_py
-from instabot_py import InstaBot
-from instabot_py.instabot import CredsMissing
-from instabot_py.default_config import DEFAULT_CONFIG
+import src
+from src.instabot import InstaBot
+from src.default_config import DEFAULT_CONFIG
+from src.instabot import CredsMissing
 
 schema = [
     dict(
@@ -253,33 +253,7 @@ def get_last_version():
     return version
 
 
-def main():
-    config = ConfigManager()
-    config.set_many(DEFAULT_CONFIG)
-    _config = ConfigManager(schema=schema, defaults=defaults)
-    config.set_many(_config.as_dict())
-    config.set_many(ConfigManager(schema=schema, path=_config.get('config.file')).as_dict())
-    config.set_many(_config.as_dict())
-    config.commit()
-
-    if config.get('dump_configuration'):
-        conf = config.as_dict()
-        conf.pop('config42')
-        print(yaml.dump(conf))
-        exit(0)
-    if config.get('show_version'):
-        print("Installed version {}".format(instabot_py.__version__))
-        exit(0)
-
-    if not config.get('ignore_updates'):
-        last_version = get_last_version()
-        if last_version and last_version != instabot_py.__version__:
-            print("Newer version available: {}, The current version: {}".format(last_version, instabot_py.__version__))
-            print("To update, please type \n python3 -m pip install instabot-py --upgrade --no-cache-dir ")
-            print("")
-            print("  > You can ignore warning, run the instabot with --ignore-updates flag")
-            exit(0)
-
+def configure_logging(config):
     if config.get('verbosity'):
         verbosity = int(config.get('verbosity'))
         if verbosity == 1:
@@ -289,8 +263,45 @@ def main():
         config.set("logging.root.level", level)
 
     logging.config.dictConfig(config.get("logging"))
+
+
+def main():
+    config = ConfigManager()
+    config.set_many(DEFAULT_CONFIG)
+    _config = ConfigManager(schema=schema, defaults=defaults)
+    config.set_many(_config.as_dict())
+    config_file = _config.get('config.file')
+    config.set_many(ConfigManager(schema=schema, path=config_file).as_dict())
+    config.set_many(_config.as_dict())
+    config.commit()
+
+    configure_logging(config)
+    if config.get('dump_configuration'):
+        conf = config.as_dict()
+        conf.pop('config42')
+        conf.pop('dump_configuration')
+        print(yaml.dump(conf))
+        exit(0)
+    if config.get('show_version'):
+        print("Installed version {}".format(src.__version__))
+        exit(0)
+
+    if not config.get('ignore_updates'):
+        last_version = get_last_version()
+        if last_version and last_version != src.__version__:
+            print("Newer version available: {}, The current version: {}".format(last_version, src.__version__))
+            print("To update, please type \n python3 -m pip install instabot-py --upgrade --no-cache-dir ")
+            print("")
+            print("  > You can ignore warning, run the instabot with --ignore-updates flag")
+            exit(0)
+
     try:
         bot = InstaBot(config=config)
+        if config_file:
+            bot.logger.info(f"Reading configuration ({len(_config.as_dict())} settings) from {config_file}")
+        else:
+            bot.logger.info(f"Use the default configuration, add '-c your-config.yml' to specify your config")
+
     except CredsMissing:
         print("You didn't provide your Instagram login & password or you didn't specify the configuration file")
         print("Try again :")

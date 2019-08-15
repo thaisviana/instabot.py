@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 from __future__ import print_function
 from io import BytesIO
-from src.location.extract_location import get_location
-from src.hashtag.extract_hashtag import *
+from PIL import Image
 #from .unfollow_protocol import unfollow_protocol
 #from .userinfo import UserInfo
-from config42 import ConfigManager
-from PIL import Image
+
+from src.location.extract_location import get_location
 from src.extract_color.get_color import img_rgbhsl_rep
+from src.hashtag.extract_hashtag import *
+
 
 import atexit
 import datetime
@@ -21,21 +23,13 @@ import random
 import re
 import signal
 import time
+
+import instaloader
 import requests
+from config42 import ConfigManager
 
-
+import src
 from src.default_config import DEFAULT_CONFIG
-#from instabot_py.persistence.manager import PersistenceManager
-
-
-#legacy
-# from .sql_updates import check_and_update, check_already_liked
-# from .sql_updates import check_already_followed, check_already_unfollowed
-# from .sql_updates import insert_media, insert_username, insert_unfollow_count
-# from .sql_updates import get_username_random, get_username_to_unfollow_random
-# from .sql_updates import check_and_insert_user_agent
-from fake_useragent import UserAgent
-
 from src.persistence.manager import PersistenceManager
 
 
@@ -85,13 +79,6 @@ class InstaBot:
         self.persistence.bot = self
         self.session_file = self.config.get("session_file")
 
-        #legacy
-        # self.database_name = database_name
-        # self.follows_db = sqlite3.connect(database_name, timeout=0, isolation_level=None)
-        # self.follows_db_c = self.follows_db.cursor()
-        # check_and_update(self)
-        # fake_ua = UserAgent()
-
         self.user_agent = random.sample(self.config.get("list_of_ua"), 1)[0]
         self.bot_start = datetime.datetime.now()
         self.bot_start_ts = time.time()
@@ -107,7 +94,7 @@ class InstaBot:
         self.unfollow_whitelist = self.config.get("unfollow_whitelist")
         self.comment_list = self.config.get("comment_list")
 
-        # self.instaloader = instaloader.Instaloader()
+        self.instaloader = instaloader.Instaloader()
 
         # Unfollow Criteria & Options
         self.unfollow_recent_feed = self.str2bool(self.config.get("unfollow_recent_feed"))
@@ -221,7 +208,8 @@ class InstaBot:
         self.ban_sleep_time = self.config.get("ban_sleep_time")
         self.unwanted_username_list = self.config.get("unwanted_username_list")
         now_time = datetime.datetime.now()
-        log_string = "Instabot v{}, started at {}:".format("0.I don't know exactly anymore", now_time.strftime("%d.%m.%Y %H:%M"))
+        log_string = "Instabot v{}, started at {}:".format(src.__version__, now_time.strftime("%d.%m.%Y %H:%M"))
+        self.logger.info(log_string)
         self.prog_run = True
         self.next_iteration = {
             "Like": 0,
@@ -233,8 +221,9 @@ class InstaBot:
         }
 
         print(log_string)
-        self.login()
         self.populate_user_blacklist()
+        self.login()
+        signal.signal(signal.SIGINT, self.cleanup)
         signal.signal(signal.SIGTERM, self.cleanup)
         atexit.register(self.cleanup)
 
@@ -284,27 +273,24 @@ class InstaBot:
 
         successfulLogin = False
 
-        log_string = 'Trying to login as %s...\n' % (self.user_login)
+        log_string = 'Trying to login as %s...\n' % self.user_login
         self.write_log(log_string)
-        self.login_post = {
-            'username': self.user_login,
-            'password': self.user_password
-        }
 
-        self.s.headers.update({
-            'Accept': '*/*',
-            'Accept-Language': self.config.get("accept_language"),
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Content-Length': '0',
-            'Host': 'www.instagram.com',
-            'Origin': 'https://www.instagram.com',
-            'Referer': 'https://www.instagram.com/',
-            'User-Agent': self.user_agent,
-            'X-Instagram-AJAX': '1',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest'
-        })
+        self.s.headers.update(
+            {
+                "Accept": "*/*",
+                "Accept-Language": self.config.get("accept_language"),
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                "Host": "www.instagram.com",
+                "Origin": "https://www.instagram.com",
+                "Referer": "https://www.instagram.com/",
+                "User-Agent": self.user_agent,
+                "X-Instagram-AJAX": "1",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-Requested-With": "XMLHttpRequest",
+            }
+        )
 
         if self.session_file and os.path.isfile(self.session_file):
             self.logger.info(f"Found session file {self.session_file}")
@@ -406,9 +392,8 @@ class InstaBot:
                         challenge_userinput_code = input(
                             "Challenge Required.\n\nEnter the code sent to your mail/phone: "
                         )
-
                         challenge_security_post = {
-                            "security_code": challenge_userinput_code
+                            "security_code": int(challenge_userinput_code)
                         }
 
                         complete_challenge = clg.post(
@@ -418,10 +403,7 @@ class InstaBot:
                         )
                         if complete_challenge.status_code != 200:
                             self.logger.info("Entered code is wrong, Try again later!")
-                            self.write_log("Entered code is wrong, Try again later!")
                             return
-                        else:
-                            print("Succeed!")
                         self.csrftoken = complete_challenge.cookies["csrftoken"]
                         self.s.headers.update(
                             {"X-CSRFToken": self.csrftoken, "X-Instagram-AJAX": "1"}
@@ -463,11 +445,9 @@ class InstaBot:
                     )
                     with open(self.session_file, "wb") as output:
                         pickle.dump(self.s.cookies, output, pickle.HIGHEST_PROTOCOL)
-                self.write_log("Succeed login!")
             else:
                 self.login_status = False
                 self.logger.error("Login error! Check your login data!")
-                self.write_log("Login error! Check your login data!")
                 if self.session_file and os.path.isfile(self.session_file):
                     try:
                         os.remove(self.session_file)
@@ -479,7 +459,6 @@ class InstaBot:
                 self.prog_run = False
         else:
             self.logger.error("Login error! Connection error!")
-            self.write_log("Login error! Connection error!")
 
     def logout(self):
         now_time = datetime.datetime.now()
@@ -557,183 +536,61 @@ class InstaBot:
 
             return self.url_media % shortened_id
 
-    def get_username_by_media_id(self, media_id):
-        """ Get username by media ID Thanks to Nikished """
-
-        if self.login_status:
-            if self.login_status == 1:
-                media_id_url = self.get_instagram_url_from_media_id(int(media_id), only_code=True)
-                url_media = self.url_media_detail % (media_id_url)
-                try:
-                    r = self.s.get(url_media)
-                    all_data = json.loads(r.text)
-
-                    username = str(all_data['graphql']['shortcode_media']['owner']['username'])
-                    self.write_log("media_id=" + media_id + ", media_id_url=" +
-                                   media_id_url + ", username_by_media_id=" + username)
-                    return username
-                except:
-                    logging.exception("username_by_mediaid exception")
-                    return False
-            else:
-                return ""
-
     def get_username_by_user_id(self, user_id):
-        """ Get username by user_id """
-        if self.login_status:
-            try:
-                url_info = self.api_user_detail % user_id
-                r = self.s.get(url_info, headers="")
-                all_data = json.loads(r.text)
-                username = all_data["user"]["username"]
-                return username
-            except:
-                logging.exception("Except on get_username_by_user_id")
-                return False
-        else:
-            return False
+        try:
+            profile = instaloader.Profile.from_id(self.instaloader.context, user_id)
+            return profile.username
+        except Exception as exc:
+            logging.exception(exc)
 
-    def get_userinfo_by_name(self, username):
-        """ Get user info by name """
+    def media_contains_blacklisted_tag(self, media):
+        try:
+            if len(media["node"]["edge_media_to_caption"]["edges"]) > 1:
+                caption = media["node"]["edge_media_to_caption"]["edges"][0]["node"]["text"].encode(
+                    "ascii", errors="ignore")
 
-        if self.login_status:
-            if self.login_status == 1:
-                url_info = self.url_user_detail % (username)
-                try:
-                    r = self.s.get(url_info)
-                    all_data = json.loads(r.text)
-                    user_info = all_data['user']
-                    follows = user_info['follows']['count']
-                    follower = user_info['followed_by']['count']
-                    follow_viewer = user_info['follows_viewer']
-                    if follower > 3000 or follows > 1500:
-                        self.write_log('   >>>This is probably Selebgram, Business or Fake account')
-                    if follow_viewer:
-                        return None
-                    return user_info
-                except:
-                    logging.exception("Except on get_userinfo_by_name")
-                    return False
-            else:
-                return False
+                tag_blacklist = set(self.tag_blacklist)
+                tags = {tag.decode("ASCII").strip("#").lower()
+                        for tag in caption.split()
+                        if (tag.decode("ASCII")).startswith("#")}
+                matching_tags = tags.intersection(tag_blacklist)
+                if matching_tags:
+                    self.logger.debug("Media ignored tag(s): {}".format(", ".join(matching_tags)))
+                    return True
+        except Exception as exc:
+            self.logger.warning("Except on media_contains_blacklisted_tag")
+            self.logger.exception(exc)
 
-    def like_all_exist_media(self, media_size=-1, delay=True):
-        """ Like all media ID that have self.media_by_tag """
+    def verify_media_misc(self, media):
+        if media["node"]["owner"]["id"] == self.user_id:
+            self.logger.debug("Keep calm - It's your own media ;)")
+            return True
 
-        if self.login_status:
-            if self.media_by_tag != 0:
-                i = 0
-                for d in self.media_by_tag:
-                    # Media count by this tag.
-                    if media_size > 0 or media_size < 0:
-                        media_size -= 1
-                        l_c = self.media_by_tag[i]['node']['edge_liked_by']['count']
-                        if True:
-                            for blacklisted_user_name, blacklisted_user_id in self.user_blacklist.items(
-                            ):
-                                if self.media_by_tag[i]['node']['owner']['id'] == blacklisted_user_id:
-                                    self.write_log(
-                                        "Not liking media owned by blacklisted user: "
-                                        + blacklisted_user_name)
-                                    return False
-                            if self.media_by_tag[i]['node']['owner']['id'] == self.user_id:
-                                self.write_log(
-                                    "Keep calm - It's your own media ;)")
-                                return False
-                            if check_already_liked(self, media_id=self.media_by_tag[i]['node']['id']) == 1:
-                                self.write_log("Keep calm - It's already liked ;)")
-                                return False
-                            try:
-                                if len(self.media_by_tag[i]['node']['edge_media_to_caption']['edges']) > 1:
-                                    caption = self.media_by_tag[i]['node']['edge_media_to_caption'][
-                                        'edges'][0]['node']['text'].encode(
-                                        'ascii', errors='ignore')
-                                    tag_blacklist = set(self.tag_blacklist)
-                                    if sys.version_info[0] == 3:
-                                        tags = {
-                                            str.lower(
-                                                (tag.decode('ASCII')).strip('#'))
-                                            for tag in caption.split()
-                                            if (tag.decode('ASCII')
-                                                ).startswith("#")
-                                        }
-                                    else:
-                                        tags = {
-                                            unicode.lower(
-                                                (tag.decode('ASCII')).strip('#'))
-                                            for tag in caption.split()
-                                            if (tag.decode('ASCII')
-                                                ).startswith("#")
-                                        }
+        if self.persistence.check_already_liked(media_id=media["node"]["id"]):
+            self.logger.info("Keep calm - It's already liked ;)")
+            return True
 
-                                    if tags.intersection(tag_blacklist):
-                                        matching_tags = ', '.join(
-                                            tags.intersection(tag_blacklist))
-                                        self.write_log(
-                                            "Not liking media with blacklisted tag(s): "
-                                            + matching_tags)
-                                        return False
-                            except:
-                                logging.exception("Except on like_all_exist_media")
-                                return False
+    def verify_media_owner_blacklisted(self, media):
 
-                            log_string = "Trying to add media: %s" % \
-                                         (self.media_by_tag[i]['node']['id'])
-                            self.write_log(log_string)
-                            like = self.add_to_api_small_big(i)
-                            like = self.like(self.media_by_tag[i]['node']['id'])
-                            # comment = self.comment(self.media_by_tag[i]['id'], 'Cool!')
-                            # follow = self.follow(self.media_by_tag[i]["owner"]["id"])
-                            if like != 0:
-                                if like.status_code == 200:
-                                    # Like, all ok!
-                                    self.error_400 = 0
-                                    self.like_counter += 1
-                                    short = self.get_instagram_url_from_media_id(self.media_by_tag[i]['node']['id'])
-                                    log_string = "Added: %s. Add #%i." % \
-                                                 (short,
-                                                  self.like_counter)
-                                    insert_media(self,
-                                                 media_id=self.media_by_tag[i]['node']['id'],
-                                                 status="200")
-                                    self.write_log(log_string)
-                                elif like.status_code == 400:
-                                    log_string = "Not Added: %i" \
-                                                 % (like.status_code)
-                                    self.write_log(log_string)
-                                    insert_media(self,
-                                                 media_id=self.media_by_tag[i]['node']['id'],
-                                                 status="400")
-                                    # Some error. If repeated - can be ban!
-                                    if self.error_400 >= self.error_400_to_ban:
-                                        # Look like you banned!
-                                        time.sleep(self.ban_sleep_time)
-                                    else:
-                                        self.error_400 += 1
-                                else:
-                                    log_string = "Not liked: %i" \
-                                                 % (like.status_code)
-                                    insert_media(self,
-                                                 media_id=self.media_by_tag[i]['node']['id'],
-                                                 status=str(like.status_code))
-                                    self.write_log(log_string)
-                                    return False
-                                    # Some error.
-                                i += 1
-                                if delay:
-                                    time.sleep(self.like_delay * 0.9 +
-                                               self.like_delay * 0.2 *
-                                               random.random())
-                                else:
-                                    return True
-                            else:
-                                return False
-                        else:
-                            return False
-                    else:
-                        return False
-            else:
-                self.write_log("No media to like!")
+        for username, userid, in self.user_blacklist.items():
+            if media["node"]["owner"]["id"] == userid:
+                self.logger.debug(
+                    f"Media owned by blacklisted user: {username}"
+                )
+                return True
+
+    def verify_media_number_of_likes(self, media):
+        like_count = media["node"]["edge_liked_by"]["count"]
+        return (like_count <= self.media_max_like and like_count >= self.media_min_like) \
+               or (self.media_max_like == 0 and like_count >= self.media_min_like) \
+               or (self.media_min_like == 0 and like_count <= self.media_max_like) \
+               or (self.media_min_like == 0 and self.media_max_like == 0)
+
+    def verify_media(self, media):
+        return not self.verify_media_misc(media) \
+               and not self.media_contains_blacklisted_tag(media) \
+               and not self.verify_media_number_of_likes(media) \
+               and not self.verify_media_owner_blacklisted(media)
 
     def like(self, media_id):
         """ Send http request to like media by ID """
@@ -746,42 +603,6 @@ class InstaBot:
                 logging.exception("Except on like!")
                 like = 0
             return like
-
-    def add_to_api_small_big(self, i):
-        try:
-            text = self.media_by_tag[i]['node']['edge_media_to_caption']['edges'][0]['node']['text'] \
-                if self.media_by_tag[i]['node']['edge_media_to_caption']['edges'] else ""
-
-            image_url = self.media_by_tag[i]['node']['display_url']
-            response = requests.get(image_url)
-            img = Image.open(BytesIO(response.content)).convert('RGB')
-            rgbhsl = img_rgbhsl_rep(img)
-
-            small_big_info = {
-                "photo_id": self.media_by_tag[i]['node']['id'],
-                "shortcode": self.media_by_tag[i]['node']['shortcode'],
-                "image_url": self.media_by_tag[i]['node']['display_url'],
-                "thumbnail": self.media_by_tag[i]['node']['thumbnail_src'],
-                "text": text,
-                "taken_at_timestamp": self.media_by_tag[i]['node']['taken_at_timestamp'],
-                "count_liked_by": self.media_by_tag[i]['node']['edge_liked_by']['count'],
-                "red": rgbhsl.r,
-                "green": rgbhsl.g,
-                "blue": rgbhsl.b,
-                "hue": rgbhsl.h,
-                "saturation": rgbhsl.s,
-                "lightness": rgbhsl.l,
-                "hashtag": get_hashtag(text),
-                "location": get_location(self.media_by_tag[i]['node']['shortcode'])
-            }
-            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-            small_big_info = json.dumps(small_big_info)
-            r = requests.post('http://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
-            # r = requests.post('http://127.0.0.1:5000/photo', data=small_big_info, headers=headers)
-        except:
-            raise
-        return r
-
 
     def unlike(self, media_id):
         """ Send http request to unlike media by ID """
@@ -808,7 +629,6 @@ class InstaBot:
                                  f"Status code : {resp.status_code} Reason: {resp.text}")
 
         return False
-
 
     def comment(self, media_id, comment_text):
         """ Send http request to comment """
@@ -921,8 +741,11 @@ class InstaBot:
                 max_tag_like_count = random.randint(1, self.max_like_for_one_tag)
                 medias = self.remove_already_liked_medias(medias_raw)[:max_tag_like_count]
 
-            # TODO: when to call new_auto_mod_like will be necesserily to call the add_to_api_small_big
-            #media = medias.pop()
+            if medias:
+                media = medias.pop()
+                self.add_to_api_small_big(media)
+            else:
+                self.write_log("Trying another location")
             #self.new_auto_mod_like(media)
             #self.new_auto_mod_unlike()
             #self.new_auto_mod_follow(media)
@@ -930,6 +753,50 @@ class InstaBot:
             #self.new_auto_mod_comments(media)
 
         self.logger.info("Exit from loop GoodBye")
+
+    def add_to_api_small_big(self, media):
+        try:
+            log_string = f"Trying to add media: {media['node']['shortcode']}"
+            self.write_log(log_string)
+
+            text = media['node']['edge_media_to_caption']['edges'][0]['node']['text'] \
+                if media['node']['edge_media_to_caption']['edges'] else ""
+
+            image_url = media['node']['display_url']
+            response = requests.get(image_url)
+            img = Image.open(BytesIO(response.content)).convert('RGB')
+            rgbhsl = img_rgbhsl_rep(img)
+
+            small_big_info = {
+                "photo_id":  media['node']['id'],
+                "shortcode": media['node']['shortcode'],
+                "image_url": media['node']['display_url'],
+                "thumbnail": media['node']['thumbnail_src'],
+                "text": text,
+                "taken_at_timestamp": media['node']['taken_at_timestamp'],
+                "count_liked_by": media['node']['edge_liked_by']['count'],
+                "red": rgbhsl.r,
+                "green": rgbhsl.g,
+                "blue": rgbhsl.b,
+                "hue": rgbhsl.h,
+                "saturation": rgbhsl.s,
+                "lightness": rgbhsl.l,
+                "hashtag": get_hashtag(text),
+                "location": get_location(media['node']['shortcode'])
+            }
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            small_big_info = json.dumps(small_big_info)
+            response = requests.post('http://small-big-api.herokuapp.com/photo', data=small_big_info, headers=headers)
+            # response = requests.post('http://127.0.0.1:5000/photo', data=small_big_info, headers=headers)
+            # TODO: Added the photo in DB
+            if response.ok:
+                # self.persistence.insert_media(media['node']['id'], "Added")
+                self.write_log(f"Added media! {media['node']['shortcode']}")
+            else:
+                self.write_log("Media was not added!")
+        except:
+            raise
+        return response
 
     def remove_already_liked_medias(self, medias):
 
